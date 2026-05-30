@@ -1,0 +1,38 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/museum/museum",
+    "pages/profile/profile",
+    "pages/onboarding/onboarding",
+    "pages/upload/upload",
+    "pages/object/object"
+  ],
+  "window": {
+    "navigationBarTitleText": "老东西",
+    "navigationBarBackgroundColor": "#f6f1e8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f1e8"
+  },
+  "tabBar": {
+    "color": "#998f7e",
+    "selectedColor": "#23201b",
+    "backgroundColor": "#f6f1e8",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/museum/museum",
+        "text": "博物馆"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

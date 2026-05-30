@@ -1,0 +1,62 @@
+<view class="page onboarding">
+  <view class="hero">
+    <view class="title">老东西</view>
+    <view class="subtitle">把一件旧物，从模糊的照片修复成有名字、有关系、有记忆的家庭展品。</view>
+  </view>
+
+  <!-- 选择模式 -->
+  <view wx:if="{{mode === 'choose'}}" class="actions">
+    <button class="button" bindtap="startCreate">创建一个家庭博物馆</button>
+    <button class="button secondary" bindtap="startJoin">输入邀请码加入家庭</button>
+  </view>
+
+  <!-- 创建家庭表单 -->
+  <view wx:if="{{mode === 'create'}}" class="form">
+    <view class="section-title">创建家庭博物馆</view>
+
+    <view class="label">家庭名称</view>
+    <input class="input" placeholder="比如：三代的记忆" value="{{familyName}}" bindinput="onFamilyName" maxlength="20" />
+
+    <view class="label">你的称呼</view>
+    <input class="input" placeholder="比如：小丽" value="{{userName}}" bindinput="onUserName" maxlength="10" />
+
+    <view class="label">你的角色</view>
+    <view class="chip-row">
+      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">家人</view>
+      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老人</view>
+    </view>
+
+    <view class="label">家庭关系</view>
+    <picker mode="selector" range="{{relations}}" bindchange="onRelation">
+      <view class="picker">{{relation || '点击选择'}}</view>
+    </picker>
+
+    <button class="button" loading="{{loading}}" bindtap="submitCreate">创建并进入</button>
+    <button class="button secondary" bindtap="backToChoose">返回</button>
+  </view>
+
+  <!-- 加入家庭表单 -->
+  <view wx:if="{{mode === 'join'}}" class="form">
+    <view class="section-title">加入家庭</view>
+
+    <view class="label">邀请码</view>
+    <input class="input code" type="number" placeholder="输入 6 位邀请码" value="{{inviteCode}}" bindinput="onInviteCode" maxlength="6" />
+
+    <view class="label">你的称呼</view>
+    <input class="input" placeholder="比如：爸爸" value="{{userName}}" bindinput="onUserName" maxlength="10" />
+
+    <view class="label">你的角色</view>
+    <view class="chip-row">
+      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">家人</view>
+      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老人</view>
+    </view>
+
+    <view class="label">家庭关系</view>
+    <picker mode="selector" range="{{relations}}" bindchange="onRelation">
+      <view class="picker">{{relation || '点击选择'}}</view>
+    </picker>
+
+    <button class="button" loading="{{loading}}" bindtap="submitJoin">加入家庭</button>
+    <button class="button secondary" bindtap="backToChoose">返回</button>
+  </view>
+</view>

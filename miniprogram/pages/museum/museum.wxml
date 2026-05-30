@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="title">家庭博物馆</view>
+  <view class="subtitle">按修复状态查看藏品。</view>
+
+  <view class="tabs">
+    <view class="tab {{status === 'all' ? 'active' : ''}}" data-status="all" bindtap="switchStatus">全部</view>
+    <view class="tab {{status === 'completed' ? 'active' : ''}}" data-status="completed" bindtap="switchStatus">已入馆</view>
+    <view class="tab {{status === 'repairing' ? 'active' : ''}}" data-status="repairing" bindtap="switchStatus">待修复</view>
+  </view>
+
+  <block wx:if="{{objects.length}}">
+    <view
+      wx:for="{{objects}}"
+      wx:key="_id"
+      class="object-card"
+      data-id="{{item._id}}"
+      bindtap="goObject"
+    >
+      <image class="cover" src="{{item.imageOriginal}}" mode="aspectFill" />
+      <view class="card-main">
+        <view class="card-title">{{item.displayTitle || item.title}}</view>
+        <view class="muted">{{item.objectNo}} · 修复度 {{item.repairProgress || 0}}%</view>
+      </view>
+    </view>
+  </block>
+  <view wx:else class="empty">暂无藏品</view>
+</view>

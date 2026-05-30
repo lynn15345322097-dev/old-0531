@@ -1,0 +1,115 @@
+<view class="page" wx:if="{{object}}">
+  <!-- ===== 状态 1: 修复中 ===== -->
+  <block wx:if="{{object.status === 'repairing'}}">
+    <view class="repair-head">
+      <view>
+        <view class="title">{{object.objectNo || 'No.001'}}</view>
+        <view class="subtitle">{{object.title || '未知藏品'}}</view>
+      </view>
+      <view class="progress">{{object.repairProgress || 0}}%</view>
+    </view>
+
+    <image
+      class="object-image"
+      src="{{object.imageProcessed || object.imageOriginal}}"
+      mode="aspectFill"
+      style="filter: grayscale({{grayscale}}%) blur({{blur}}rpx);"
+    />
+
+    <view class="panel">
+      <view class="section-title">接龙记录</view>
+      <block wx:if="{{contributions.length}}">
+        <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
+          <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
+          <view class="content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+          <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
+        </view>
+      </block>
+      <view wx:else class="empty">还没有接龙内容</view>
+    </view>
+
+    <view class="panel">
+      <view class="section-title">补充这件物</view>
+      <textarea class="textarea" placeholder="写一个问题，或补充一段记忆" value="{{contentText}}" bindinput="onInput" />
+      <view class="button-grid">
+        <button class="button secondary" data-type="question" bindtap="submitText">提问</button>
+        <button class="button secondary" data-type="memory" bindtap="submitText">补充记忆</button>
+      </view>
+      <button class="button voice" loading="{{recording}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">
+        按住老人语音回答
+      </button>
+    </view>
+  </block>
+
+  <!-- ===== 状态 2: 修复满 100%，等待生成 ===== -->
+  <block wx:elif="{{!card}}">
+    <view class="repair-head">
+      <view>
+        <view class="title">{{object.objectNo || 'No.001'}}</view>
+        <view class="subtitle">修复完成</view>
+      </view>
+      <view class="progress">100%</view>
+    </view>
+
+    <image
+      class="object-image"
+      src="{{object.imageProcessed || object.imageOriginal}}"
+      mode="aspectFill"
+    />
+
+    <view class="panel">
+      <view class="section-title">接龙记录</view>
+      <block wx:if="{{contributions.length}}">
+        <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
+          <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
+          <view class="content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+          <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
+        </view>
+      </block>
+    </view>
+
+    <button class="button generate" loading="{{generating}}" bindtap="generateCard">
+      生成展品卡
+    </button>
+  </block>
+
+  <!-- ===== 状态 3: 已生成展品卡 ===== -->
+  <block wx:else>
+    <image class="hero-image" src="{{object.imageOriginal}}" mode="aspectFill" />
+
+    <view class="title">{{card.title}}</view>
+    <view class="subtitle">{{object.objectNo}} · 家庭展品卡</view>
+
+    <view class="panel">
+      <view class="label">关联人物</view>
+      <view class="chips">
+        <view wx:for="{{card.people}}" wx:key="*this" class="chip">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="label">关键词</view>
+      <view class="chips">
+        <view wx:for="{{card.keywords}}" wx:key="*this" class="chip">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="label">展品说明</view>
+      <view class="body">{{card.description}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="label">多重记忆</view>
+      <view wx:for="{{card.memories}}" wx:key="text" class="memory-item">
+        <view class="memory-person">{{item.person}}</view>
+        <view class="body">{{item.text}}</view>
+      </view>
+    </view>
+
+    <view class="panel" wx:if="{{card.familyMessage}}">
+      <view class="label">家人留言</view>
+      <view class="body">{{card.familyMessage}}</view>
+    </view>
+  </block>
+</view>

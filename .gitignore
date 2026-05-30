@@ -1,0 +1,16 @@
+# 微信云开发
+node_modules/
+
+# Claude
+.claude/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# 云函数本地调试
+cloudfunctions/**/node_modules/

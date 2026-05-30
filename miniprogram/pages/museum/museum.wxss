@@ -1,0 +1,56 @@
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+  margin: 32rpx 0 20rpx;
+  padding: 8rpx;
+  border-radius: 8rpx;
+  background: #e8dece;
+}
+
+.tab {
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 6rpx;
+  text-align: center;
+  color: #665f54;
+  font-size: 28rpx;
+}
+
+.tab.active {
+  background: #fffaf0;
+  color: #23201b;
+  font-weight: 700;
+}
+
+.object-card {
+  display: flex;
+  gap: 22rpx;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  background: #fffaf0;
+  border: 1rpx solid #ded2bf;
+}
+
+.cover {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 8rpx;
+  background: #e8dece;
+}
+
+.card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  margin-bottom: 12rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

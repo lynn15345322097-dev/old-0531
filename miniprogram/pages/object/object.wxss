@@ -1,0 +1,134 @@
+/* === repair 相关 === */
+.repair-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  align-items: flex-start;
+}
+
+.progress {
+  min-width: 132rpx;
+  padding: 16rpx 0;
+  border-radius: 8rpx;
+  background: #23201b;
+  color: #fff;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.object-image {
+  display: block;
+  width: 100%;
+  height: 620rpx;
+  margin-top: 28rpx;
+  border-radius: 8rpx;
+  background: #e8dece;
+  transition: filter 0.3s ease-out;
+}
+
+.section-title {
+  margin-bottom: 20rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.contribution {
+  padding: 20rpx 0;
+  border-top: 1rpx solid #e5dac8;
+}
+
+.contribution:first-of-type {
+  border-top: 0;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 6rpx 14rpx;
+  border-radius: 6rpx;
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.tag.question { background: #365c7d; }
+.tag.memory  { background: #7a5a2c; }
+.tag.answer  { background: #5b6d42; }
+
+.content {
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  line-height: 1.6;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 180rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  border-radius: 8rpx;
+  background: #fff;
+  border: 1rpx solid #ded2bf;
+  font-size: 30rpx;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.voice,
+.generate {
+  margin-top: 20rpx;
+}
+
+/* === card 相关 === */
+.hero-image {
+  width: 100%;
+  height: 520rpx;
+  margin-bottom: 28rpx;
+  border-radius: 8rpx;
+  background: #e8dece;
+}
+
+.label {
+  margin-bottom: 16rpx;
+  color: #665f54;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.chip {
+  padding: 10rpx 16rpx;
+  border-radius: 6rpx;
+  background: #e8dece;
+  font-size: 26rpx;
+}
+
+.body {
+  font-size: 30rpx;
+  line-height: 1.7;
+}
+
+.memory-item {
+  padding: 18rpx 0;
+  border-top: 1rpx solid #e5dac8;
+}
+
+.memory-item:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.memory-person {
+  margin-bottom: 8rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+}

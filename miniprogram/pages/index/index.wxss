@@ -1,0 +1,53 @@
+.hero {
+  padding-top: 24rpx;
+}
+
+.actions {
+  display: grid;
+  gap: 20rpx;
+  margin-top: 44rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+}
+
+.object-row {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  padding: 18rpx 0;
+  border-top: 1rpx solid #e5dac8;
+}
+
+.object-row:first-of-type {
+  border-top: 0;
+}
+
+.thumb {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 8rpx;
+  background: #e8dece;
+}
+
+.row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.row-progress {
+  margin-top: 10rpx;
+  color: #756d61;
+  font-size: 26rpx;
+}

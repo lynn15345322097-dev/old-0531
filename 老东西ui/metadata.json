@@ -1,0 +1,6 @@
+{
+  "name": "老东西",
+  "description": "帮助家庭成员携手重聚拼合、暖心修复老旧物品珍藏岁月与亲情记忆的小型家庭博物馆。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
