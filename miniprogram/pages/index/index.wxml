@@ -1,11 +1,11 @@
 <view class="page home">
   <view class="hero">
-    <view class="title">老东西</view>
-    <view class="subtitle">把一件旧物，从模糊的照片修复成有名字、有关系、有记忆的家庭展品。</view>
+    <view class="subtitle">那些没有被丢掉的东西</view>
+    <view class="title">修复一段记忆，找回一件物品</view>
   </view>
 
   <view class="actions">
-    <button class="button" bindtap="goUpload">上传一个物件</button>
+    <button class="button" bindtap="goUpload">上传你的物品</button>
   </view>
 
   <view class="panel">
@@ -21,6 +21,9 @@
         <image class="thumb" src="{{item.imageOriginal}}" mode="aspectFill" />
         <view class="row-main">
           <view class="row-title">{{item.objectNo || 'No.001'}} {{item.title}}</view>
+          <view class="progress-bar-wrap">
+            <view class="progress-bar" style="width: {{item.repairProgress || 0}}%"></view>
+          </view>
           <view class="row-progress">修复度 {{item.repairProgress || 0}}%</view>
         </view>
       </view>
@@ -40,8 +43,8 @@
       >
         <image class="thumb" src="{{item.imageOriginal}}" mode="aspectFill" />
         <view class="row-main">
-          <view class="row-title">{{item.objectNo || 'No.001'}} {{item.title}}</view>
-          <view class="muted" wx:if="{{item.repairProgress >= 100}}">已入馆</view>
+          <view class="row-title">{{item.displayTitle || item.title}}</view>
+          <view class="muted">{{item.objectNo}} · 已入馆</view>
         </view>
       </view>
     </block>

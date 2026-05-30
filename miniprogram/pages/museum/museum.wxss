@@ -54,3 +54,33 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 6rpx;
+}
+
+.kw-tag {
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+  background: #f0ebe0;
+  color: #665f54;
+  font-size: 22rpx;
+}
+
+.progress-bar-wrap {
+  margin-top: 10rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: #e8dece;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 4rpx;
+  background: #aa7d54;
+  transition: width 0.3s ease-out;
+}

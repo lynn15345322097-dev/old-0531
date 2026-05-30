@@ -19,6 +19,10 @@ exports.main = async (event) => {
 
   if (event.status && event.status !== 'all') {
     where.status = event.status
+    // "已入馆"要求已生成展品卡
+    if (event.status === 'completed') {
+      where.finalCard = db.command.neq(null)
+    }
   }
 
   const res = await db.collection('objects')

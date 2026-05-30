@@ -1,6 +1,5 @@
 <view class="page">
-  <view class="title">家庭博物馆</view>
-  <view class="subtitle">按修复状态查看藏品。</view>
+  <view class="title">老东西</view>
 
   <view class="tabs">
     <view class="tab {{status === 'all' ? 'active' : ''}}" data-status="all" bindtap="switchStatus">全部</view>
@@ -19,7 +18,18 @@
       <image class="cover" src="{{item.imageOriginal}}" mode="aspectFill" />
       <view class="card-main">
         <view class="card-title">{{item.displayTitle || item.title}}</view>
-        <view class="muted">{{item.objectNo}} · 修复度 {{item.repairProgress || 0}}%</view>
+        <!-- 已入馆：显示关键词 -->
+        <view wx:if="{{item.status === 'completed' && item.finalCard && item.finalCard.keywords}}" class="keywords">
+          <view wx:for="{{item.finalCard.keywords}}" wx:for-item="kw" wx:key="*this" class="kw-tag">{{kw}}</view>
+        </view>
+        <!-- 待修复：显示修复度 -->
+        <block wx:if="{{item.status === 'repairing'}}">
+          <view class="progress-bar-wrap">
+            <view class="progress-bar" style="width: {{item.repairProgress || 0}}%"></view>
+          </view>
+          <view class="muted">修复度 {{item.repairProgress || 0}}%</view>
+        </block>
+        <view wx:if="{{item.status === 'completed' && !item.finalCard}}" class="muted">{{item.objectNo}} · 待生成展品卡</view>
       </view>
     </view>
   </block>

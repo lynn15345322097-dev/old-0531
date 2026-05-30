@@ -20,7 +20,7 @@
       </view>
       <view class="row">
         <view class="row-label">角色</view>
-        <view class="row-value">{{user.role === 'elder' ? '老人' : '家人'}}</view>
+        <view class="row-value">{{user.role === 'elder' ? '老东西' : '小东西'}}</view>
       </view>
       <view class="row" wx:if="{{user.relation}}">
         <view class="row-label">关系</view>

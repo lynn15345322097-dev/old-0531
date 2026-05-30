@@ -30,6 +30,8 @@
 }
 ```
 
+role 数据库值 `elder`/`family`，前端显示 `老东西`/`小东西`。
+
 MVP 一个用户只属于一个家庭。以后如需多家庭，再加 `family_members` 关联表。
 
 ## objects 藏品表
@@ -56,6 +58,11 @@ MVP 一个用户只属于一个家庭。以后如需多家庭，再加 `family_m
 ```
 
 MVP 里 `imageProcessed` 可以先等于 `imageOriginal`。黑白模糊由前端根据 `repairProgress` 动态生成视觉效果。
+
+藏品详情页三态判断：
+- `status=repairing` → 修复中
+- `status=completed` 且无 `finalCard` → 等待生成展品卡
+- 有 `finalCard` → 显示展品卡
 
 ## contributions 接龙表
 

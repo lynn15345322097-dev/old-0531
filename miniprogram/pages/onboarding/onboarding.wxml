@@ -1,7 +1,7 @@
 <view class="page onboarding">
   <view class="hero">
-    <view class="title">老东西</view>
-    <view class="subtitle">把一件旧物，从模糊的照片修复成有名字、有关系、有记忆的家庭展品。</view>
+    <view class="title">Hello！一起成为老东西吧～</view>
+    <view class="subtitle">那些没有被丢掉的东西</view>
   </view>
 
   <!-- 选择模式 -->
@@ -22,8 +22,8 @@
 
     <view class="label">你的角色</view>
     <view class="chip-row">
-      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">家人</view>
-      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老人</view>
+      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">小东西</view>
+      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老东西</view>
     </view>
 
     <view class="label">家庭关系</view>
@@ -47,8 +47,8 @@
 
     <view class="label">你的角色</view>
     <view class="chip-row">
-      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">家人</view>
-      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老人</view>
+      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">小东西</view>
+      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老东西</view>
     </view>
 
     <view class="label">家庭关系</view>

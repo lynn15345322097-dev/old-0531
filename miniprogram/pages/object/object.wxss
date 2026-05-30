@@ -83,6 +83,28 @@
   margin-top: 20rpx;
 }
 
+.congrats-banner {
+  margin-top: 28rpx;
+  padding: 32rpx 28rpx;
+  border-radius: 8rpx;
+  background: #faf5eb;
+  border: 1rpx solid #d6cab8;
+  text-align: center;
+}
+
+.congrats-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #23201b;
+}
+
+.congrats-desc {
+  margin-top: 10rpx;
+  color: #665f54;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
 /* === card 相关 === */
 .hero-image {
   width: 100%;

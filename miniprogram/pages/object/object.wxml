@@ -42,7 +42,7 @@
   </block>
 
   <!-- ===== 状态 2: 修复满 100%，等待生成 ===== -->
-  <block wx:elif="{{!card}}">
+  <block wx:if="{{object.status !== 'repairing' && !card}}">
     <view class="repair-head">
       <view>
         <view class="title">{{object.objectNo || 'No.001'}}</view>
@@ -56,6 +56,11 @@
       src="{{object.imageProcessed || object.imageOriginal}}"
       mode="aspectFill"
     />
+
+    <view class="congrats-banner">
+      <view class="congrats-text">恭喜！记忆已重组！</view>
+      <view class="congrats-desc">家人接龙和老人记忆已拼合完成，可以生成展品卡了。</view>
+    </view>
 
     <view class="panel">
       <view class="section-title">接龙记录</view>
@@ -74,7 +79,7 @@
   </block>
 
   <!-- ===== 状态 3: 已生成展品卡 ===== -->
-  <block wx:else>
+  <block wx:if="{{card}}">
     <image class="hero-image" src="{{object.imageOriginal}}" mode="aspectFill" />
 
     <view class="title">{{card.title}}</view>
@@ -100,7 +105,7 @@
     </view>
 
     <view class="panel">
-      <view class="label">多重记忆</view>
+      <view class="label">记忆谱系</view>
       <view wx:for="{{card.memories}}" wx:key="text" class="memory-item">
         <view class="memory-person">{{item.person}}</view>
         <view class="body">{{item.text}}</view>
