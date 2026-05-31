@@ -2,11 +2,8 @@
   <!-- ===== 状态 1: 修复中 ===== -->
   <block wx:if="{{object.status === 'repairing'}}">
     <view class="repair-head">
-      <view>
-        <view class="title">{{object.objectNo || 'No.001'}}</view>
-        <view class="subtitle">{{object.title || '未知藏品'}}</view>
-      </view>
-      <view class="progress">{{object.repairProgress || 0}}%</view>
+      <view class="object-no">{{object.objectNo || 'No.001'}}</view>
+      <view class="progress-label">记忆正在修复 {{object.repairProgress || 0}}%</view>
     </view>
 
     <image
@@ -16,8 +13,41 @@
       style="filter: grayscale({{grayscale}}%) blur({{blur}}rpx);"
     />
 
+    <!-- 修复互动模块 -->
+    <view class="repair-module">
+      <view class="repair-module-title">帮它恢复一点记忆</view>
+      <view class="repair-module-desc">每补充一次，藏品都会更清晰一点。</view>
+
+      <textarea
+        class="repair-textarea"
+        placeholder="你想问什么？或想起了什么？"
+        value="{{contentText}}"
+        bindinput="onInput"
+      />
+
+      <view class="repair-buttons">
+        <button class="repair-btn question-btn" data-type="question" bindtap="submitByType">问问它的来历</button>
+        <button class="repair-btn memory-btn" data-type="memory" bindtap="submitByType">补一段我的记忆</button>
+      </view>
+
+      <button
+        class="elder-voice-btn"
+        loading="{{recording}}"
+        bindtouchstart="startRecord"
+        bindtouchend="stopRecord"
+        bindtouchcancel="stopRecord"
+      >
+        <view wx:if="{{!recording}}">
+          <text class="elder-voice-icon">🎤</text>
+          <text>让长辈讲讲</text>
+        </view>
+        <view wx:else>正在听长辈说...</view>
+      </button>
+    </view>
+
+    <!-- 接龙记录 -->
     <view class="panel">
-      <view class="section-title">接龙记录</view>
+      <view class="section-title">家人们的回忆</view>
       <block wx:if="{{contributions.length}}">
         <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
           <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
@@ -25,45 +55,30 @@
           <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
         </view>
       </block>
-      <view wx:else class="empty">还没有接龙内容</view>
-    </view>
-
-    <view class="panel">
-      <view class="section-title">补充这件物</view>
-      <textarea class="textarea" placeholder="写一个问题，或补充一段记忆" value="{{contentText}}" bindinput="onInput" />
-      <view class="button-grid">
-        <button class="button secondary" data-type="question" bindtap="submitText">提问</button>
-        <button class="button secondary" data-type="memory" bindtap="submitText">补充记忆</button>
-      </view>
-      <button class="button voice" loading="{{recording}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">
-        按住老人语音回答
-      </button>
+      <view wx:else class="empty">还没有回忆，在上方写一段或让长辈讲一段吧</view>
     </view>
   </block>
 
   <!-- ===== 状态 2: 修复满 100%，等待生成 ===== -->
   <block wx:if="{{object.status !== 'repairing' && !card}}">
     <view class="repair-head">
-      <view>
-        <view class="title">{{object.objectNo || 'No.001'}}</view>
-        <view class="subtitle">修复完成</view>
-      </view>
-      <view class="progress">100%</view>
+      <view class="object-no">{{object.objectNo || 'No.001'}}</view>
+      <view class="progress-label done">记忆修复已完成</view>
     </view>
 
     <image
-      class="object-image"
+      class="object-image clear"
       src="{{object.imageProcessed || object.imageOriginal}}"
       mode="aspectFill"
     />
 
     <view class="congrats-banner">
-      <view class="congrats-text">恭喜！记忆已重组！</view>
-      <view class="congrats-desc">家人接龙和老人记忆已拼合完成，可以生成展品卡了。</view>
+      <view class="congrats-text">家人们一起拼好了这件老东西的记忆</view>
+      <view class="congrats-desc">现在可以为它生成一张家庭展品卡了</view>
     </view>
 
     <view class="panel">
-      <view class="section-title">接龙记录</view>
+      <view class="section-title">家人们的回忆</view>
       <block wx:if="{{contributions.length}}">
         <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
           <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
@@ -73,8 +88,8 @@
       </block>
     </view>
 
-    <button class="button generate" loading="{{generating}}" bindtap="generateCard">
-      生成展品卡
+    <button class="generate-button" loading="{{generating}}" bindtap="generateCard">
+      生成我的家庭展品卡
     </button>
   </block>
 
@@ -82,8 +97,8 @@
   <block wx:if="{{card}}">
     <image class="hero-image" src="{{object.imageOriginal}}" mode="aspectFill" />
 
-    <view class="title">{{card.title}}</view>
-    <view class="subtitle">{{object.objectNo}} · 家庭展品卡</view>
+    <view class="card-title">{{card.title}}</view>
+    <view class="card-subtitle">{{object.objectNo}} · 家庭展品卡</view>
 
     <view class="panel">
       <view class="label">关联人物</view>

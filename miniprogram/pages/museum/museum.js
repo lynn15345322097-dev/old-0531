@@ -20,7 +20,8 @@ Page({
       success: (res) => {
         this.setData({ objects: res.result.objects || [] })
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('[cloud:getMuseumObjects] failed', err)
         wx.showToast({ title: '加载失败', icon: 'none' })
       }
     })

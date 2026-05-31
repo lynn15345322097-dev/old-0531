@@ -1,22 +1,67 @@
+.page {
+  min-height: 100vh;
+  padding: 60rpx 40rpx 80rpx;
+  display: flex;
+  flex-direction: column;
+}
+
 .photo-box {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 620rpx;
-  margin: 36rpx 0 28rpx;
-  border-radius: 8rpx;
-  background: #fffaf0;
-  border: 2rpx dashed #cfc2ad;
+  min-height: 700rpx;
+  border-radius: 20rpx;
+  background: #faf7f0;
+  border: 3rpx dashed #d4c8b0;
   overflow: hidden;
+  margin-bottom: 40rpx;
 }
 
 .photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.placeholder-icon {
+  font-size: 96rpx;
+  line-height: 1;
+}
+
+.placeholder-text {
+  font-size: 36rpx;
   color: #756d61;
-  font-size: 30rpx;
+  font-weight: 600;
 }
 
 .preview {
   width: 100%;
   height: 100%;
+}
+
+.button-save {
+  width: 100%;
+  height: 100rpx;
+  background: linear-gradient(135deg, #23201b 0%, #3d3730 100%);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 700;
+  border-radius: 20rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 4rpx;
+}
+
+.button-save::after {
+  border: none;
+}
+
+.button-save[disabled] {
+  background: #d4c8b0;
+  color: #a89880;
 }

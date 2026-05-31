@@ -1,53 +1,45 @@
 <view class="page home">
   <view class="hero">
-    <view class="subtitle">那些没有被丢掉的东西</view>
-    <view class="title">修复一段记忆，找回一件物品</view>
+    <view class="slogan">那些没有被丢掉的东西</view>
+    <view class="main-title">拍下老物件，<text class="highlight">讲讲它的故事</text></view>
+    <view class="hint">家里压箱底的老东西，都值得被记住</view>
   </view>
 
   <view class="actions">
-    <button class="button" bindtap="goUpload">上传你的物品</button>
+    <button class="button-primary" bindtap="goUpload">
+      <view class="button-icon">📷</view>
+      <view class="button-label">拍一件老东西</view>
+    </button>
+  </view>
+
+  <view class="divider">
+    <view class="divider-line"></view>
+    <text class="divider-text">家里的老物件</text>
+    <view class="divider-line"></view>
   </view>
 
   <view class="panel">
-    <view class="section-title">待修复藏品</view>
-    <block wx:if="{{repairingObjects.length}}">
+    <view wx:if="{{totalCount > 0}}" class="panel-summary">已有 {{totalCount}} 件藏品入馆，{{repairingCount}} 件等待修复</view>
+    <view wx:else class="panel-summary">还没有老物件，拍下第一件开始吧</view>
+
+    <view wx:if="{{recentObjects.length}}" class="recent-list">
       <view
-        wx:for="{{repairingObjects}}"
+        wx:for="{{recentObjects}}"
         wx:key="_id"
         class="object-row"
         data-id="{{item._id}}"
         bindtap="goObject"
       >
         <image class="thumb" src="{{item.imageOriginal}}" mode="aspectFill" />
-        <view class="row-main">
-          <view class="row-title">{{item.objectNo || 'No.001'}} {{item.title}}</view>
-          <view class="progress-bar-wrap">
-            <view class="progress-bar" style="width: {{item.repairProgress || 0}}%"></view>
+        <view class="row-text">
+          <view class="row-name">{{item.displayTitle || item.title}}</view>
+          <view class="row-status">
+            <text wx:if="{{item.status === 'repairing'}}">修复中 · {{item.repairProgress || 0}}%</text>
+            <text wx:else>已入馆</text>
           </view>
-          <view class="row-progress">修复度 {{item.repairProgress || 0}}%</view>
         </view>
       </view>
-    </block>
-    <view wx:else class="empty">还没有待修复藏品</view>
-  </view>
-
-  <view class="panel">
-    <view class="section-title">最近入馆藏品</view>
-    <block wx:if="{{recentCompleted.length}}">
-      <view
-        wx:for="{{recentCompleted}}"
-        wx:key="_id"
-        class="object-row"
-        data-id="{{item._id}}"
-        bindtap="goObject"
-      >
-        <image class="thumb" src="{{item.imageOriginal}}" mode="aspectFill" />
-        <view class="row-main">
-          <view class="row-title">{{item.displayTitle || item.title}}</view>
-          <view class="muted">{{item.objectNo}} · 已入馆</view>
-        </view>
-      </view>
-    </block>
-    <view wx:else class="empty">还没有入馆藏品</view>
+    </view>
+    <view wx:else class="empty">还没有记录，点击上方按钮拍下第一件</view>
   </view>
 </view>

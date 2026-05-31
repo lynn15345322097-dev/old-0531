@@ -1,7 +1,8 @@
 Page({
   data: {
-    repairingObjects: [],
-    recentCompleted: []
+    totalCount: 0,
+    repairingCount: 0,
+    recentObjects: []
   },
 
   onShow() {
@@ -9,25 +10,22 @@ Page({
   },
 
   loadData() {
-    // 待修复藏品
-    wx.cloud.callFunction({
-      name: 'getMuseumObjects',
-      data: { status: 'repairing' },
-      success: (res) => {
-        this.setData({ repairingObjects: (res.result.objects || []).slice(0, 5) })
-      },
-      fail: () => {
-        wx.showToast({ title: '加载失败', icon: 'none' })
-      }
-    })
+    const call = (status) =>
+      new Promise((resolve) => {
+        wx.cloud.callFunction({
+          name: 'getMuseumObjects',
+          data: { status },
+          success: (res) => resolve(res.result.objects || []),
+          fail: () => resolve([])
+        })
+      })
 
-    // 最近入馆藏品
-    wx.cloud.callFunction({
-      name: 'getMuseumObjects',
-      data: { status: 'completed' },
-      success: (res) => {
-        this.setData({ recentCompleted: (res.result.objects || []).slice(0, 5) })
-      }
+    Promise.all([call('all'), call('repairing')]).then(([allObjects, repairing]) => {
+      this.setData({
+        totalCount: allObjects.length,
+        repairingCount: repairing.length,
+        recentObjects: allObjects.slice(0, 6)
+      })
     })
   },
 

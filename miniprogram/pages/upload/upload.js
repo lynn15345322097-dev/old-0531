@@ -8,7 +8,7 @@ Page({
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
-      sourceType: ['album', 'camera'],
+      sourceType: ['camera', 'album'],
       success: (res) => {
         this.setData({
           tempImage: res.tempFiles[0].tempFilePath
@@ -35,20 +35,21 @@ Page({
             imageProcessed: uploadRes.fileID
           },
           success: (res) => {
-            const objectId = res.result.objectId
-            wx.redirectTo({ url: `/pages/object/object?objectId=${objectId}` })
+            wx.redirectTo({ url: `/pages/object/object?objectId=${res.result.objectId}` })
           },
-          fail: () => {
-            wx.showToast({ title: '创建失败', icon: 'error' })
+          fail: (err) => {
+            console.error('[cloud:createObject] failed', err)
+            wx.showToast({ title: '保存失败，请重试', icon: 'none' })
           },
           complete: () => {
             this.setData({ uploading: false })
           }
         })
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('[cloud:uploadFile:object-image] failed', err)
         this.setData({ uploading: false })
-        wx.showToast({ title: '上传失败', icon: 'error' })
+        wx.showToast({ title: '上传失败，请重试', icon: 'none' })
       }
     })
   }

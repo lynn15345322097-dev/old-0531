@@ -1,36 +1,152 @@
-/* === repair 相关 === */
-.repair-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 24rpx;
-  align-items: flex-start;
+/* === 通用 === */
+.page {
+  padding: 40rpx 36rpx 80rpx;
+  min-height: 100vh;
 }
 
-.progress {
-  min-width: 132rpx;
-  padding: 16rpx 0;
-  border-radius: 8rpx;
-  background: #23201b;
-  color: #fff;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 700;
+.object-no {
+  font-size: 28rpx;
+  color: #998f7e;
+}
+
+.progress-label {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #aa7d54;
+}
+
+.progress-label.done {
+  color: #5b6d42;
 }
 
 .object-image {
   display: block;
   width: 100%;
-  height: 620rpx;
-  margin-top: 28rpx;
-  border-radius: 8rpx;
+  height: 500rpx;
+  margin-top: 24rpx;
+  border-radius: 16rpx;
   background: #e8dece;
   transition: filter 0.3s ease-out;
 }
 
-.section-title {
+.object-image.clear {
+  filter: none !important;
+}
+
+/* === 修复互动模块 === */
+.repair-module {
+  margin-top: 32rpx;
+  padding: 36rpx 32rpx;
+  border-radius: 20rpx;
+  background: #faf7f0;
+  border: 1rpx solid #ece3d2;
+}
+
+.repair-module-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #23201b;
+  margin-bottom: 8rpx;
+}
+
+.repair-module-desc {
+  font-size: 26rpx;
+  color: #998f7e;
+  margin-bottom: 24rpx;
+}
+
+.repair-textarea {
+  width: 100%;
+  min-height: 100rpx;
+  max-height: 160rpx;
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+  border-radius: 14rpx;
+  background: #fff;
+  border: 1rpx solid #e5dac8;
+  font-size: 30rpx;
+  line-height: 1.5;
+  margin-bottom: 24rpx;
+}
+
+/* 两个并排按钮 */
+.repair-buttons {
+  display: flex;
+  gap: 20rpx;
   margin-bottom: 20rpx;
+}
+
+.repair-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 16rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 30rpx;
   font-weight: 700;
+  line-height: 1;
+}
+
+.repair-btn::after {
+  border: none;
+}
+
+.repair-btn:active {
+  transform: scale(0.97);
+}
+
+.question-btn {
+  background: #365c7d;
+  color: #fff;
+}
+
+.memory-btn {
+  background: #7a5a2c;
+  color: #fff;
+}
+
+/* 语音按钮 - 暖棕描边样式 */
+.elder-voice-btn {
+  width: 100%;
+  height: 96rpx;
+  border-radius: 16rpx;
+  background: #faf7f0;
+  border: 2rpx solid #aa7d54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #aa7d54;
+  gap: 12rpx;
+}
+
+.elder-voice-btn::after {
+  border: none;
+}
+
+.elder-voice-btn:active {
+  background: #f5efe4;
+  transform: scale(0.98);
+}
+
+.elder-voice-icon {
+  font-size: 36rpx;
+  line-height: 1;
+}
+
+/* === 接龙记录 === */
+.panel {
+  margin-top: 32rpx;
+}
+
+.section-title {
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #665f54;
 }
 
 .contribution {
@@ -60,58 +176,77 @@
   line-height: 1.6;
 }
 
-.textarea {
-  width: 100%;
-  min-height: 180rpx;
-  padding: 20rpx;
-  box-sizing: border-box;
-  border-radius: 8rpx;
-  background: #fff;
-  border: 1rpx solid #ded2bf;
-  font-size: 30rpx;
+.empty {
+  font-size: 28rpx;
+  color: #c4b99d;
+  padding: 16rpx 0;
 }
 
-.button-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
-  margin-top: 20rpx;
-}
-
-.voice,
-.generate {
-  margin-top: 20rpx;
-}
-
+/* === 恭喜 Banner === */
 .congrats-banner {
   margin-top: 28rpx;
-  padding: 32rpx 28rpx;
-  border-radius: 8rpx;
-  background: #faf5eb;
-  border: 1rpx solid #d6cab8;
+  padding: 36rpx 28rpx;
+  border-radius: 16rpx;
+  background: #f0f6ea;
+  border: 1rpx solid #d0ddc0;
   text-align: center;
 }
 
 .congrats-text {
   font-size: 36rpx;
   font-weight: 700;
-  color: #23201b;
+  color: #3d4f2e;
 }
 
 .congrats-desc {
   margin-top: 10rpx;
-  color: #665f54;
-  font-size: 26rpx;
+  color: #6b7a5c;
+  font-size: 28rpx;
   line-height: 1.5;
 }
 
-/* === card 相关 === */
+/* === 生成按钮 === */
+.generate-button {
+  width: 100%;
+  height: 100rpx;
+  margin-top: 32rpx;
+  background: linear-gradient(135deg, #23201b 0%, #3d3730 100%);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 700;
+  border-radius: 20rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 4rpx;
+}
+
+.generate-button::after {
+  border: none;
+}
+
+/* === Card === */
 .hero-image {
   width: 100%;
-  height: 520rpx;
-  margin-bottom: 28rpx;
-  border-radius: 8rpx;
+  height: 480rpx;
+  border-radius: 16rpx;
   background: #e8dece;
+}
+
+.card-title {
+  margin-top: 28rpx;
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #23201b;
+  text-align: center;
+}
+
+.card-subtitle {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #998f7e;
+  text-align: center;
 }
 
 .label {

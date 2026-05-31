@@ -51,7 +51,8 @@ Page({
           blur: Math.max(0, Math.round(6 * (1 - progress / 100)))
         })
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('[db:objects:get] failed', err)
         wx.showToast({ title: '加载藏品失败', icon: 'none' })
       }
     })
@@ -63,8 +64,8 @@ Page({
         success: (res) => {
           this.setData({ contributions: res.data || [] })
         },
-        fail: () => {
-          wx.showToast({ title: '加载接龙失败', icon: 'none' })
+        fail: (err) => {
+          console.error('[db:contributions:list] failed', err)
         }
       })
   },
@@ -73,10 +74,12 @@ Page({
     this.setData({ contentText: event.detail.value })
   },
 
-  submitText(event) {
+  submitByType(event) {
+    const type = event.currentTarget.dataset.type
     const contentText = this.data.contentText.trim()
+
     if (!contentText) {
-      wx.showToast({ title: '先写一点内容', icon: 'none' })
+      wx.showToast({ title: '先写点什么吧', icon: 'none' })
       return
     }
 
@@ -84,13 +87,17 @@ Page({
       name: 'addContribution',
       data: {
         objectId: this.data.objectId,
-        type: event.currentTarget.dataset.type,
+        type,
         source: 'text',
         contentText
       },
       success: () => {
         this.setData({ contentText: '' })
         this.loadData()
+      },
+      fail: (err) => {
+        console.error('[cloud:addContribution:text] failed', err)
+        wx.showToast({ title: '提交失败', icon: 'none' })
       }
     })
   },
@@ -130,8 +137,16 @@ Page({
           },
           success: () => {
             this.loadData()
+          },
+          fail: (err) => {
+            console.error('[cloud:addContribution:audio] failed', err)
+            wx.showToast({ title: '语音保存失败', icon: 'none' })
           }
         })
+      },
+      fail: (err) => {
+        console.error('[cloud:uploadFile:audio] failed', err)
+        wx.showToast({ title: '语音上传失败', icon: 'none' })
       }
     })
   },
@@ -144,7 +159,8 @@ Page({
       success: () => {
         this.loadData()
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('[cloud:generateCard] failed', err)
         wx.showToast({ title: '生成失败', icon: 'error' })
       },
       complete: () => {

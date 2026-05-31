@@ -1,13 +1,18 @@
 <view class="page">
-  <view class="title">上传一个物件</view>
-  <view class="subtitle">拍照或选择一张旧物照片</view>
-
   <view class="photo-box" bindtap="chooseImage">
     <image wx:if="{{tempImage}}" class="preview" src="{{tempImage}}" mode="aspectFill" />
-    <view wx:else class="photo-placeholder">拍照 / 选择图片</view>
+    <view wx:else class="photo-placeholder">
+      <view class="placeholder-icon">📷</view>
+      <view class="placeholder-text">拍照 / 选择老物件</view>
+    </view>
   </view>
 
-  <button class="button" loading="{{uploading}}" disabled="{{!tempImage || uploading}}" bindtap="submit">
-    创建未知藏品
+  <button
+    class="button-save"
+    loading="{{uploading}}"
+    disabled="{{!tempImage || uploading}}"
+    bindtap="submit"
+  >
+    保存这件老东西
   </button>
 </view>

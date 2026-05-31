@@ -1,25 +1,123 @@
+.home {
+  min-height: 100vh;
+  padding: 60rpx 40rpx 80rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Hero ---- */
 .hero {
-  padding-top: 24rpx;
+  text-align: center;
+  padding-top: 80rpx;
+  padding-bottom: 60rpx;
 }
 
-.actions {
-  display: grid;
-  gap: 20rpx;
-  margin-top: 44rpx;
+.slogan {
+  font-size: 32rpx;
+  color: #998f7e;
+  margin-bottom: 24rpx;
+  letter-spacing: 4rpx;
 }
 
-.section-title {
+.main-title {
+  font-size: 52rpx;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #23201b;
+}
+
+.highlight {
+  color: #aa7d54;
+}
+
+.hint {
+  margin-top: 20rpx;
   font-size: 30rpx;
+  color: #b3a68f;
+}
+
+/* ---- Big Button ---- */
+.actions {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0 60rpx;
+}
+
+.button-primary {
+  width: 480rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #23201b 0%, #3d3730 100%);
+  border-radius: 24rpx;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 8rpx 32rpx rgba(35, 32, 27, 0.2);
+}
+
+.button-primary::after {
+  border: none;
+}
+
+.button-primary:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.button-icon {
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.button-label {
+  font-size: 34rpx;
   font-weight: 700;
-  margin-bottom: 20rpx;
+  color: #fff;
+  letter-spacing: 2rpx;
+}
+
+/* ---- Divider ---- */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 0 40rpx;
+  margin-bottom: 36rpx;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1rpx;
+  background: #e5dac8;
+}
+
+.divider-text {
+  font-size: 26rpx;
+  color: #b3a68f;
+  white-space: nowrap;
+}
+
+/* ---- Panel ---- */
+.panel-summary {
+  text-align: center;
+  font-size: 28rpx;
+  color: #998f7e;
+  margin-bottom: 30rpx;
+}
+
+.recent-list {
+  border-top: 1rpx solid #ece3d2;
+  border-bottom: 1rpx solid #ece3d2;
 }
 
 .object-row {
   display: flex;
-  gap: 20rpx;
+  gap: 24rpx;
   align-items: center;
-  padding: 18rpx 0;
-  border-top: 1rpx solid #e5dac8;
+  padding: 24rpx 0;
+  border-top: 1rpx solid #ece3d2;
 }
 
 .object-row:first-of-type {
@@ -27,42 +125,36 @@
 }
 
 .thumb {
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 8rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 10rpx;
   background: #e8dece;
+  flex-shrink: 0;
 }
 
-.row-main {
+.row-text {
   flex: 1;
   min-width: 0;
 }
 
-.row-title {
+.row-name {
   font-size: 30rpx;
   font-weight: 600;
+  color: #23201b;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.progress-bar-wrap {
-  margin-top: 10rpx;
-  height: 8rpx;
-  border-radius: 4rpx;
-  background: #e8dece;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  border-radius: 4rpx;
-  background: #aa7d54;
-  transition: width 0.3s ease-out;
-}
-
-.row-progress {
+.row-status {
   margin-top: 6rpx;
-  color: #756d61;
   font-size: 24rpx;
+  color: #998f7e;
+}
+
+.empty {
+  text-align: center;
+  font-size: 26rpx;
+  color: #c4b99d;
+  padding: 24rpx 0;
 }

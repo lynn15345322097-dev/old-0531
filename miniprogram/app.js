@@ -37,7 +37,8 @@ App({
           wx.redirectTo({ url: '/pages/onboarding/onboarding' })
         }
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('[cloud:login] failed', err)
         wx.showToast({ title: '登录失败，请重试', icon: 'none' })
       }
     })
