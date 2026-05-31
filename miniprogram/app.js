@@ -1,3 +1,5 @@
+const demoStore = require('./utils/demoStore')
+
 App({
   globalData: {
     user: null,
@@ -6,6 +8,13 @@ App({
   },
 
   onLaunch() {
+    if (demoStore.DEMO_MODE) {
+      this.globalData.user = demoStore.getUser()
+      this.globalData.family = demoStore.getFamily()
+      this.globalData.needOnboarding = false
+      return
+    }
+
     if (!wx.cloud) {
       wx.showModal({
         title: '云开发不可用',

@@ -1,13 +1,29 @@
+const demoStore = require('../../utils/demoStore')
 const app = getApp()
 
 Page({
   data: {
     family: null,
     user: null,
-    inviteCode: ''
+    inviteCode: '',
+    demoMode: demoStore.DEMO_MODE
   },
 
   onShow() {
+    if (demoStore.DEMO_MODE) {
+      const family = demoStore.getFamily()
+      const user = demoStore.getUser()
+      app.globalData.family = family
+      app.globalData.user = user
+      app.globalData.needOnboarding = false
+      this.setData({
+        family,
+        user,
+        inviteCode: family.inviteCode || ''
+      })
+      return
+    }
+
     const family = app.globalData.family
     const user = app.globalData.user
 
@@ -54,5 +70,20 @@ Page({
         wx.showToast({ title: '邀请码已复制', icon: 'success' })
       }
     })
+  },
+
+  resetDemoData() {
+    if (!demoStore.DEMO_MODE) return
+    demoStore.resetDemo()
+    const family = demoStore.getFamily()
+    const user = demoStore.getUser()
+    app.globalData.family = family
+    app.globalData.user = user
+    this.setData({
+      family,
+      user,
+      inviteCode: family.inviteCode || ''
+    })
+    wx.showToast({ title: '初始展品已恢复', icon: 'success' })
   }
 })

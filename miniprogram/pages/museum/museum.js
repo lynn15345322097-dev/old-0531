@@ -1,3 +1,5 @@
+const demoStore = require('../../utils/demoStore')
+
 Page({
   data: {
     status: 'all',
@@ -14,6 +16,11 @@ Page({
   },
 
   loadObjects() {
+    if (demoStore.DEMO_MODE) {
+      this.setData({ objects: demoStore.listObjects(this.data.status) })
+      return
+    }
+
     wx.cloud.callFunction({
       name: 'getMuseumObjects',
       data: { status: this.data.status },

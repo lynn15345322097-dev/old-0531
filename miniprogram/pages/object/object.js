@@ -1,3 +1,4 @@
+const demoStore = require('../../utils/demoStore')
 const recorder = wx.getRecorderManager()
 
 Page({
@@ -12,9 +13,9 @@ Page({
     recording: false,
     generating: false,
     typeText: {
-      question: '提问',
-      memory: '记忆',
-      answer: '回答'
+      question: '家人问',
+      memory: '补充',
+      answer: '我回答'
     }
   },
 
@@ -39,6 +40,26 @@ Page({
   },
 
   loadData() {
+    if (demoStore.DEMO_MODE) {
+      const object = demoStore.getObject(this.data.objectId)
+      const contributions = demoStore.getContributions(this.data.objectId)
+
+      if (!object) {
+        wx.showToast({ title: '找不到演示藏品', icon: 'none' })
+        return
+      }
+
+      const progress = object.repairProgress || 0
+      this.setData({
+        object,
+        card: object.finalCard || null,
+        contributions,
+        grayscale: Math.max(0, 100 - progress),
+        blur: Math.max(0, Math.round(6 * (1 - progress / 100)))
+      })
+      return
+    }
+
     const db = wx.cloud.database()
     db.collection('objects').doc(this.data.objectId).get({
       success: (objectRes) => {
@@ -83,6 +104,17 @@ Page({
       return
     }
 
+    if (demoStore.DEMO_MODE) {
+      demoStore.addContribution(this.data.objectId, {
+        type,
+        source: 'text',
+        contentText
+      })
+      this.setData({ contentText: '' })
+      this.loadData()
+      return
+    }
+
     wx.cloud.callFunction({
       name: 'addContribution',
       data: {
@@ -121,6 +153,17 @@ Page({
   },
 
   uploadAudio(tempFilePath) {
+    if (demoStore.DEMO_MODE) {
+      demoStore.addContribution(this.data.objectId, {
+        type: 'answer',
+        source: 'audio',
+        contentText: '我用语音讲了一段这件老东西的故事',
+        audioUrl: tempFilePath
+      })
+      this.loadData()
+      return
+    }
+
     const cloudPath = `audio/${this.data.objectId}/${Date.now()}.mp3`
     wx.cloud.uploadFile({
       cloudPath,
@@ -132,7 +175,7 @@ Page({
             objectId: this.data.objectId,
             type: 'answer',
             source: 'audio',
-            contentText: '老人留下了一段语音回答',
+            contentText: '我留下了一段语音',
             audioUrl: uploadRes.fileID
           },
           success: () => {
@@ -153,6 +196,14 @@ Page({
 
   generateCard() {
     this.setData({ generating: true })
+
+    if (demoStore.DEMO_MODE) {
+      demoStore.generateCard(this.data.objectId)
+      this.loadData()
+      this.setData({ generating: false })
+      return
+    }
+
     wx.cloud.callFunction({
       name: 'generateCard',
       data: { objectId: this.data.objectId },

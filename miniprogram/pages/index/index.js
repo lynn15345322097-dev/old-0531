@@ -1,3 +1,5 @@
+const demoStore = require('../../utils/demoStore')
+
 Page({
   data: {
     totalCount: 0,
@@ -10,6 +12,17 @@ Page({
   },
 
   loadData() {
+    if (demoStore.DEMO_MODE) {
+      const allObjects = demoStore.listObjects('all')
+      const repairing = demoStore.listObjects('repairing')
+      this.setData({
+        totalCount: allObjects.length,
+        repairingCount: repairing.length,
+        recentObjects: allObjects.slice(0, 6)
+      })
+      return
+    }
+
     const call = (status) =>
       new Promise((resolve) => {
         wx.cloud.callFunction({

@@ -107,6 +107,11 @@
   color: #fff;
 }
 
+.answer-btn {
+  background: #5b6d42;
+  color: #fff;
+}
+
 /* 语音按钮 - 暖棕描边样式 */
 .elder-voice-btn {
   width: 100%;

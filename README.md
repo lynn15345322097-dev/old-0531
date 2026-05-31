@@ -50,3 +50,22 @@ card 存在 → 展品卡（名称/人物/关键词/说明/记忆/留言）
 2. 开通云开发，创建集合：`families` `users` `objects` `contributions`
 3. 部署 `cloudfunctions/` 下所有云函数
 4. 可选：给 `generateCard` 配置环境变量 `AI_API_KEY` `AI_BASE_URL` `AI_MODEL`
+
+## 小程序本地 Demo 模式
+
+为了先完成 MVP 演示，小程序内置了本地 Demo 模式。开关在：
+
+```js
+miniprogram/utils/demoStore.js
+const DEMO_MODE = true
+```
+
+`DEMO_MODE = true` 时，小程序不调用云函数，也不上传云存储：
+
+- 首页、博物馆读取本地示例藏品
+- 上传图片后直接创建本地藏品并进入详情页
+- 接龙内容保存在本地缓存
+- 每次接龙修复度 +20%
+- 修复度满 100% 后可以生成固定展品卡
+
+需要切回真实云开发时，把 `DEMO_MODE` 改成 `false`，并确认云函数、数据库集合和云存储已配置完成。

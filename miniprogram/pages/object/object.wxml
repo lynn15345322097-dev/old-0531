@@ -13,21 +13,21 @@
       style="filter: grayscale({{grayscale}}%) blur({{blur}}rpx);"
     />
 
-    <!-- 修复互动模块 -->
+    <!-- 我来讲讲它 -->
     <view class="repair-module">
-      <view class="repair-module-title">帮它恢复一点记忆</view>
-      <view class="repair-module-desc">每补充一次，藏品都会更清晰一点。</view>
+      <view class="repair-module-title">我来讲讲它</view>
+      <view class="repair-module-desc">每讲一点，这件老东西就会更清楚一点。</view>
 
       <textarea
         class="repair-textarea"
-        placeholder="你想问什么？或想起了什么？"
+        placeholder="说说它为什么还在，或者它和谁有关"
         value="{{contentText}}"
         bindinput="onInput"
       />
 
       <view class="repair-buttons">
-        <button class="repair-btn question-btn" data-type="question" bindtap="submitByType">问问它的来历</button>
-        <button class="repair-btn memory-btn" data-type="memory" bindtap="submitByType">补一段我的记忆</button>
+        <button class="repair-btn memory-btn" data-type="memory" bindtap="submitByType">讲一段记忆</button>
+        <button class="repair-btn answer-btn" data-type="answer" bindtap="submitByType">回答家人的问题</button>
       </view>
 
       <button
@@ -39,23 +39,23 @@
       >
         <view wx:if="{{!recording}}">
           <text class="elder-voice-icon">🎤</text>
-          <text>让长辈讲讲</text>
+          <text>按住说话</text>
         </view>
-        <view wx:else>正在听长辈说...</view>
+        <view wx:else>正在听你说...</view>
       </button>
     </view>
 
     <!-- 接龙记录 -->
     <view class="panel">
-      <view class="section-title">家人们的回忆</view>
+      <view class="section-title">家人问我的</view>
       <block wx:if="{{contributions.length}}">
         <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
           <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
-          <view class="content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+          <view class="content" wx:if="{{item.contentText}}">{{item.displayText || item.contentText}}</view>
           <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
         </view>
       </block>
-      <view wx:else class="empty">还没有回忆，在上方写一段或让长辈讲一段吧</view>
+      <view wx:else class="empty">家人还没来问，你也可以先讲一段。</view>
     </view>
   </block>
 
@@ -73,16 +73,16 @@
     />
 
     <view class="congrats-banner">
-      <view class="congrats-text">家人们一起拼好了这件老东西的记忆</view>
-      <view class="congrats-desc">现在可以为它生成一张家庭展品卡了</view>
+      <view class="congrats-text">讲得差不多了，这件老东西被重新看见了</view>
+      <view class="congrats-desc">现在可以为它生成一张家庭展品卡</view>
     </view>
 
     <view class="panel">
-      <view class="section-title">家人们的回忆</view>
+      <view class="section-title">家人问我的</view>
       <block wx:if="{{contributions.length}}">
         <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
           <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
-          <view class="content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+          <view class="content" wx:if="{{item.contentText}}">{{item.displayText || item.contentText}}</view>
           <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
         </view>
       </block>

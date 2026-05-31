@@ -2,25 +2,25 @@
   <view class="hero">
     <view class="slogan">那些没有被丢掉的东西</view>
     <view class="main-title">拍下老物件，<text class="highlight">讲讲它的故事</text></view>
-    <view class="hint">家里压箱底的老东西，都值得被记住</view>
+    <view class="hint">我留下来的老东西，都有故事可以讲</view>
   </view>
 
   <view class="actions">
     <button class="button-primary" bindtap="goUpload">
       <view class="button-icon">📷</view>
-      <view class="button-label">拍一件老东西</view>
+      <view class="button-label">上传我的老东西</view>
     </button>
   </view>
 
   <view class="divider">
     <view class="divider-line"></view>
-    <text class="divider-text">家里的老物件</text>
+    <text class="divider-text">我的老物件</text>
     <view class="divider-line"></view>
   </view>
 
   <view class="panel">
     <view wx:if="{{totalCount > 0}}" class="panel-summary">已有 {{totalCount}} 件藏品入馆，{{repairingCount}} 件等待修复</view>
-    <view wx:else class="panel-summary">还没有老物件，拍下第一件开始吧</view>
+    <view wx:else class="panel-summary">还没有老物件，先上传第一件吧</view>
 
     <view wx:if="{{recentObjects.length}}" class="recent-list">
       <view
@@ -40,6 +40,6 @@
         </view>
       </view>
     </view>
-    <view wx:else class="empty">还没有记录，点击上方按钮拍下第一件</view>
+    <view wx:else class="empty">还没有记录，点击上方按钮上传第一件</view>
   </view>
 </view>

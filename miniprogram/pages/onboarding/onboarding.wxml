@@ -1,7 +1,7 @@
 <view class="page onboarding">
   <view class="hero">
-    <view class="title">Hello！一起成为老东西吧～</view>
-    <view class="subtitle">那些没有被丢掉的东西</view>
+    <view class="title">欢迎！创建我的家庭博物馆</view>
+    <view class="subtitle">那些没有被丢掉的东西，总有故事可以讲</view>
   </view>
 
   <!-- 选择模式 -->
@@ -15,18 +15,17 @@
     <view class="section-title">创建家庭博物馆</view>
 
     <view class="label">家庭名称</view>
-    <input class="input" placeholder="比如：三代的记忆" value="{{familyName}}" bindinput="onFamilyName" maxlength="20" />
+    <input class="input" placeholder="比如：老陈家的传家屋" value="{{familyName}}" bindinput="onFamilyName" maxlength="20" />
 
-    <view class="label">你的称呼</view>
-    <input class="input" placeholder="比如：小丽" value="{{userName}}" bindinput="onUserName" maxlength="10" />
+    <view class="label">我的称呼</view>
+    <input class="input" placeholder="比如：奶奶、爷爷、外婆、外公" value="{{userName}}" bindinput="onUserName" maxlength="10" />
 
-    <view class="label">你的角色</view>
+    <view class="label">我的身份</view>
     <view class="chip-row">
-      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">小东西</view>
-      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老东西</view>
+      <view class="chip active">老东西</view>
     </view>
 
-    <view class="label">家庭关系</view>
+    <view class="label">家人怎么称呼我</view>
     <picker mode="selector" range="{{relations}}" bindchange="onRelation">
       <view class="picker">{{relation || '点击选择'}}</view>
     </picker>
@@ -37,21 +36,20 @@
 
   <!-- 加入家庭表单 -->
   <view wx:if="{{mode === 'join'}}" class="form">
-    <view class="section-title">加入家庭</view>
+    <view class="section-title">加入家庭博物馆</view>
 
     <view class="label">邀请码</view>
     <input class="input code" type="number" placeholder="输入 6 位邀请码" value="{{inviteCode}}" bindinput="onInviteCode" maxlength="6" />
 
-    <view class="label">你的称呼</view>
-    <input class="input" placeholder="比如：爸爸" value="{{userName}}" bindinput="onUserName" maxlength="10" />
+    <view class="label">我的称呼</view>
+    <input class="input" placeholder="比如：奶奶、爷爷、外婆、外公" value="{{userName}}" bindinput="onUserName" maxlength="10" />
 
-    <view class="label">你的角色</view>
+    <view class="label">我的身份</view>
     <view class="chip-row">
-      <view class="chip {{role === 'family' ? 'active' : ''}}" data-role="family" bindtap="pickRole">小东西</view>
-      <view class="chip {{role === 'elder' ? 'active' : ''}}" data-role="elder" bindtap="pickRole">老东西</view>
+      <view class="chip active">老东西</view>
     </view>
 
-    <view class="label">家庭关系</view>
+    <view class="label">家人怎么称呼我</view>
     <picker mode="selector" range="{{relations}}" bindchange="onRelation">
       <view class="picker">{{relation || '点击选择'}}</view>
     </picker>

@@ -27,10 +27,10 @@ function fallbackCard(object, contributions) {
     title: `关于${titlePrefix}的故事`,
     people: ['爷爷', '奶奶', '爸爸', '孙女'],
     keywords: ['陪伴', '习惯', '搬家', '舍不得'],
-    description: `这件物原本只是家中常见的旧物。经过家人的提问、补充和老人留下的回答，它被重新看见：它记录了日常生活里的习惯，也保存了几代人共同生活的痕迹。`,
+    description: `这件物原本只是家中常见的旧物。经过家人的提问、补充和讲述，它被重新看见：它记录了日常生活里的习惯，也保存了几代人共同生活的痕迹。`,
     memories: memoryTexts.length
-      ? memoryTexts.slice(0, 5).map((text, index) => ({
-          person: index === memoryTexts.length - 1 ? '老人' : '家人',
+      ? memoryTexts.slice(0, 5).map((text) => ({
+          person: '讲述者',
           text
         }))
       : [

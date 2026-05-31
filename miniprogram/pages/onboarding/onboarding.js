@@ -5,11 +5,11 @@ Page({
     mode: 'choose',    // 'choose' | 'create' | 'join'
     familyName: '',
     userName: '',
-    role: 'family',
+    role: 'elder',
     relation: '',
     inviteCode: '',
     loading: false,
-    relations: ['爷爷', '奶奶', '爸爸', '妈妈', '孙女', '孙子', '其他']
+    relations: ['奶奶', '爷爷', '外婆', '外公', '其他']
   },
 
   startCreate() {
@@ -53,7 +53,7 @@ Page({
       return
     }
     if (!userName) {
-      wx.showToast({ title: '请输入你的称呼', icon: 'none' })
+      wx.showToast({ title: '请输入我的称呼', icon: 'none' })
       return
     }
 
@@ -102,7 +102,7 @@ Page({
       return
     }
     if (!userName) {
-      wx.showToast({ title: '请输入你的称呼', icon: 'none' })
+      wx.showToast({ title: '请输入我的称呼', icon: 'none' })
       return
     }
 

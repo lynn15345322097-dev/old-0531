@@ -1,3 +1,5 @@
+const demoStore = require('../../utils/demoStore')
+
 Page({
   data: {
     tempImage: '',
@@ -21,6 +23,14 @@ Page({
     if (!this.data.tempImage) return
 
     this.setData({ uploading: true })
+
+    if (demoStore.DEMO_MODE) {
+      const object = demoStore.createObject(this.data.tempImage)
+      this.setData({ uploading: false })
+      wx.redirectTo({ url: `/pages/object/object?objectId=${object.objectId}` })
+      return
+    }
+
     const ext = this.data.tempImage.split('.').pop() || 'jpg'
     const cloudPath = `objects/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 

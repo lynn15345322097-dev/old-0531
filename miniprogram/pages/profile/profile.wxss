@@ -1,16 +1,38 @@
+.page {
+  padding: 40rpx 36rpx 80rpx;
+  min-height: 100vh;
+}
+
+/* === Identity panels === */
+.identity-panel {
+  text-align: center;
+}
+
+.identity-family-name {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #23201b;
+  margin-top: 12rpx;
+  letter-spacing: 4rpx;
+}
+
+.identity-rows {
+  margin-top: 8rpx;
+}
+
 .panel-title {
-  margin-bottom: 20rpx;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #665f54;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #998f7e;
+  margin-bottom: 8rpx;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18rpx 0;
-  border-top: 1rpx solid #e5dac8;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #ece3d2;
 }
 
 .row:first-of-type {
@@ -19,12 +41,30 @@
 
 .row-label {
   color: #665f54;
-  font-size: 28rpx;
+  font-size: 30rpx;
 }
 
 .row-value {
-  font-size: 28rpx;
-  font-weight: 600;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #23201b;
+}
+
+.elder-badge {
+  color: #aa7d54;
+  font-size: 32rpx;
+}
+
+/* === Invite === */
+.invite-panel {
+  text-align: center;
+}
+
+.invite-desc {
+  font-size: 26rpx;
+  color: #998f7e;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
 }
 
 .invite-row {
@@ -37,7 +77,7 @@
   flex: 1;
   height: 88rpx;
   line-height: 88rpx;
-  border-radius: 8rpx;
+  border-radius: 10rpx;
   background: #fff;
   border: 1rpx solid #ded2bf;
   text-align: center;
@@ -51,10 +91,27 @@
   min-width: 140rpx;
   height: 88rpx;
   line-height: 88rpx;
-  border-radius: 8rpx;
+  border-radius: 10rpx;
   background: #23201b;
   color: #fff;
   font-size: 28rpx;
   font-weight: 600;
   padding: 0;
+}
+
+.reset-btn {
+  margin-top: 24rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  background: #ece3d2;
+  color: #998f7e;
+  font-size: 26rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-btn::after {
+  border: none;
 }

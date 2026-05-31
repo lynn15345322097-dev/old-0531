@@ -16,7 +16,7 @@ exports.main = async (event) => {
   // 从用户记录获取真实名称和角色
   const userQuery = await db.collection('users').where({ openid }).limit(1).get()
   const user = userQuery.data.length ? userQuery.data[0] : null
-  const authorName = user ? (user.name || (event.source === 'audio' ? '老人' : '家庭成员')) : (event.source === 'audio' ? '老人' : '家庭成员')
+  const authorName = user ? (user.name || '我') : '我'
   const authorRole = user ? (user.role || (event.source === 'audio' ? 'elder' : 'family')) : (event.source === 'audio' ? 'elder' : 'family')
 
   const type = event.type || 'memory'

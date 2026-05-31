@@ -3,7 +3,7 @@
     <image wx:if="{{tempImage}}" class="preview" src="{{tempImage}}" mode="aspectFill" />
     <view wx:else class="photo-placeholder">
       <view class="placeholder-icon">📷</view>
-      <view class="placeholder-text">拍照 / 选择老物件</view>
+      <view class="placeholder-text">拍照 / 选择我的老物件</view>
     </view>
   </view>
 
@@ -13,6 +13,6 @@
     disabled="{{!tempImage || uploading}}"
     bindtap="submit"
   >
-    保存这件老东西
+    保存我的老东西
   </button>
 </view>
