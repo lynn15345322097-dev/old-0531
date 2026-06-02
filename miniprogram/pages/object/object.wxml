@@ -1,17 +1,55 @@
+<wxs module="fmt">
+function duration(seconds) {
+  if (!seconds) return '00:00'
+  var m = Math.floor(seconds / 60)
+  var s = seconds % 60
+  return (m < 10 ? '0' + m : '' + m) + ':' + (s < 10 ? '0' + s : '' + s)
+}
+module.exports = { duration: duration }
+</wxs>
+
 <view class="page" wx:if="{{object}}">
   <!-- ===== 状态 1: 修复中 ===== -->
   <block wx:if="{{object.status === 'repairing'}}">
     <view class="repair-head">
       <view class="object-no">{{object.objectNo || 'No.001'}}</view>
       <view class="progress-label">记忆正在修复 {{object.repairProgress || 0}}%</view>
+      <view class="clue-progress">
+        <text class="clue-count">已发现记忆线索 {{clueCount}} / {{clueTarget}}</text>
+      </view>
+      <view wx:if="{{newClues.length}}" class="new-clues">
+        <text class="new-clues-label">新发现：</text>
+        <block wx:for="{{newClues}}" wx:key="type">
+          <text class="new-clue-tag">{{item.label}}</text>
+        </block>
+      </view>
     </view>
 
-    <image
-      class="object-image"
-      src="{{object.imageProcessed || object.imageOriginal}}"
-      mode="aspectFill"
-      style="filter: grayscale({{grayscale}}%) blur({{blur}}rpx);"
-    />
+    <view class="image-wrap">
+      <image
+        class="object-image"
+        src="{{object.imageProcessed || object.imageOriginal}}"
+        mode="aspectFill"
+        style="filter: {{filterStyle}};"
+      />
+    </view>
+
+    <!-- 已点亮的记忆线索 -->
+    <view wx:if="{{memoryClues && memoryClues.discoveredTypes.length}}" class="clue-tags-panel">
+      <view class="clue-tags-title">已点亮的记忆线索</view>
+      <view class="clue-tags-list">
+        <block wx:for="{{memoryClues.discoveredTypes}}" wx:key="*this" wx:for-item="type">
+          <view class="clue-tag-item">
+            <view class="clue-tag-type">{{CLUE_LABELS[type] || type}}</view>
+            <view class="clue-tag-labels">
+              <block wx:for="{{memoryClues.labels[type]}}" wx:key="*this" wx:for-item="label">
+                <text class="clue-label-chip">{{label}}</text>
+              </block>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
 
     <!-- 我来讲讲它 -->
     <view class="repair-module">
@@ -26,34 +64,77 @@
       />
 
       <view class="repair-buttons">
-        <button class="repair-btn memory-btn" data-type="memory" bindtap="submitByType">讲一段记忆</button>
-        <button class="repair-btn answer-btn" data-type="answer" bindtap="submitByType">回答家人的问题</button>
+        <button class="repair-btn memory-btn" data-kind="memory" bindtap="submitByKind">讲一段记忆</button>
+        <button class="repair-btn answer-btn" data-kind="answer" bindtap="submitByKind">回答家人的问题</button>
       </view>
 
       <button
-        class="elder-voice-btn"
-        loading="{{recording}}"
-        bindtouchstart="startRecord"
-        bindtouchend="stopRecord"
-        bindtouchcancel="stopRecord"
+        class="elder-voice-btn {{recording ? 'is-recording' : ''}}"
+        bindtap="toggleRecord"
       >
         <view wx:if="{{!recording}}">
           <text class="elder-voice-icon">🎤</text>
-          <text>按住说话</text>
+          <text>点击开始录音</text>
         </view>
-        <view wx:else>正在听你说...</view>
+        <view wx:else class="recording-info">
+          <view class="recording-dot"></view>
+          <text>正在录音 {{recordDurationText}}</text>
+        </view>
       </button>
     </view>
 
-    <!-- 接龙记录 -->
+    <!-- 记忆档案 -->
     <view class="panel">
-      <view class="section-title">家人问我的</view>
-      <block wx:if="{{contributions.length}}">
-        <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
-          <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
-          <view class="content" wx:if="{{item.contentText}}">{{item.displayText || item.contentText}}</view>
-          <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
-        </view>
+      <view class="section-title">记忆档案</view>
+      <block wx:if="{{threadedItems.length}}">
+        <block wx:for="{{threadedItems}}" wx:for-item="root" wx:key="memoryId">
+          <!-- 根卡片 -->
+          <view class="memory-card card-{{root.kind}}">
+            <view class="card-bar"></view>
+            <view class="card-body">
+              <view class="card-head">
+                <view class="card-author">
+                  {{root.authorName}}
+                  <text wx:if="{{root.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                </view>
+                <view class="card-delta">+{{root.repairDelta}}%</view>
+              </view>
+              <view class="card-content" wx:if="{{root.contentText}}">{{root.displayText || root.contentText}}</view>
+              <view wx:if="{{root.audioUrl}}" class="audio-player" data-memory-id="{{root._id}}" data-audio-url="{{root.audioUrl}}" bindtap="playAudio">
+                <view class="audio-icon">{{playingId === root._id ? '⏸' : '▶'}}</view>
+                <view class="audio-duration">{{fmt.duration(root.audioDuration)}}</view>
+                <view class="audio-bar-wrap">
+                  <view class="audio-bar-fill {{playingId === root._id ? 'active' : ''}}" style="width: {{playingId === root._id ? audioProgress + '%' : '0%'}}"></view>
+                </view>
+              </view>
+              <view class="card-time">{{root.createdAt}}</view>
+            </view>
+          </view>
+          <!-- 子卡片（回复） -->
+          <block wx:for="{{root.children}}" wx:for-item="child" wx:key="memoryId">
+            <view class="memory-card child card-{{child.kind}}">
+              <view class="card-bar"></view>
+              <view class="card-body">
+                <view class="card-head">
+                  <view class="card-author">
+                    {{child.authorName}}
+                    <text wx:if="{{child.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                  </view>
+                  <view class="card-delta">+{{child.repairDelta}}%</view>
+                </view>
+                <view class="card-content" wx:if="{{child.contentText}}">{{child.displayText || child.contentText}}</view>
+                <view wx:if="{{child.audioUrl}}" class="audio-player" data-memory-id="{{child._id}}" data-audio-url="{{child.audioUrl}}" bindtap="playAudio">
+                  <view class="audio-icon">{{playingId === child._id ? '⏸' : '▶'}}</view>
+                  <view class="audio-duration">{{fmt.duration(child.audioDuration)}}</view>
+                  <view class="audio-bar-wrap">
+                    <view class="audio-bar-fill {{playingId === child._id ? 'active' : ''}}" style="width: {{playingId === child._id ? audioProgress + '%' : '0%'}}"></view>
+                  </view>
+                </view>
+                <view class="card-time">{{child.createdAt}}</view>
+              </view>
+            </view>
+          </block>
+        </block>
       </block>
       <view wx:else class="empty">家人还没来问，你也可以先讲一段。</view>
     </view>
@@ -66,11 +147,14 @@
       <view class="progress-label done">记忆修复已完成</view>
     </view>
 
-    <image
-      class="object-image clear"
-      src="{{object.imageProcessed || object.imageOriginal}}"
-      mode="aspectFill"
-    />
+    <view class="image-wrap">
+      <image
+        class="object-image"
+        src="{{object.imageProcessed || object.imageOriginal}}"
+        mode="aspectFill"
+        style="filter: {{filterStyle}};"
+      />
+    </view>
 
     <view class="congrats-banner">
       <view class="congrats-text">讲得差不多了，这件老东西被重新看见了</view>
@@ -78,13 +162,54 @@
     </view>
 
     <view class="panel">
-      <view class="section-title">家人问我的</view>
-      <block wx:if="{{contributions.length}}">
-        <view wx:for="{{contributions}}" wx:key="_id" class="contribution">
-          <view class="tag {{item.type}}">{{typeText[item.type]}}</view>
-          <view class="content" wx:if="{{item.contentText}}">{{item.displayText || item.contentText}}</view>
-          <audio wx:if="{{item.audioUrl}}" src="{{item.audioUrl}}" controls></audio>
-        </view>
+      <view class="section-title">记忆档案</view>
+      <block wx:if="{{threadedItems.length}}">
+        <block wx:for="{{threadedItems}}" wx:for-item="root" wx:key="memoryId">
+          <view class="memory-card card-{{root.kind}}">
+            <view class="card-bar"></view>
+            <view class="card-body">
+              <view class="card-head">
+                <view class="card-author">
+                  {{root.authorName}}
+                  <text wx:if="{{root.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                </view>
+                <view class="card-delta">+{{root.repairDelta}}%</view>
+              </view>
+              <view class="card-content" wx:if="{{root.contentText}}">{{root.displayText || root.contentText}}</view>
+              <view wx:if="{{root.audioUrl}}" class="audio-player" data-memory-id="{{root._id}}" data-audio-url="{{root.audioUrl}}" bindtap="playAudio">
+                <view class="audio-icon">{{playingId === root._id ? '⏸' : '▶'}}</view>
+                <view class="audio-duration">{{fmt.duration(root.audioDuration)}}</view>
+                <view class="audio-bar-wrap">
+                  <view class="audio-bar-fill {{playingId === root._id ? 'active' : ''}}" style="width: {{playingId === root._id ? audioProgress + '%' : '0%'}}"></view>
+                </view>
+              </view>
+              <view class="card-time">{{root.createdAt}}</view>
+            </view>
+          </view>
+          <block wx:for="{{root.children}}" wx:for-item="child" wx:key="memoryId">
+            <view class="memory-card child card-{{child.kind}}">
+              <view class="card-bar"></view>
+              <view class="card-body">
+                <view class="card-head">
+                  <view class="card-author">
+                    {{child.authorName}}
+                    <text wx:if="{{child.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                  </view>
+                  <view class="card-delta">+{{child.repairDelta}}%</view>
+                </view>
+                <view class="card-content" wx:if="{{child.contentText}}">{{child.displayText || child.contentText}}</view>
+                <view wx:if="{{child.audioUrl}}" class="audio-player" data-memory-id="{{child._id}}" data-audio-url="{{child.audioUrl}}" bindtap="playAudio">
+                  <view class="audio-icon">{{playingId === child._id ? '⏸' : '▶'}}</view>
+                  <view class="audio-duration">{{fmt.duration(child.audioDuration)}}</view>
+                  <view class="audio-bar-wrap">
+                    <view class="audio-bar-fill {{playingId === child._id ? 'active' : ''}}" style="width: {{playingId === child._id ? audioProgress + '%' : '0%'}}"></view>
+                  </view>
+                </view>
+                <view class="card-time">{{child.createdAt}}</view>
+              </view>
+            </view>
+          </block>
+        </block>
       </block>
     </view>
 
@@ -100,14 +225,16 @@
     <view class="card-title">{{card.title}}</view>
     <view class="card-subtitle">{{object.objectNo}} · 家庭展品卡</view>
 
-    <view class="panel">
-      <view class="label">关联人物</view>
+    <view wx:if="{{card.shortIntro}}" class="card-intro">{{card.shortIntro}}</view>
+
+    <view class="panel" wx:if="{{card.museumTags && card.museumTags.length}}">
+      <view class="label">展馆</view>
       <view class="chips">
-        <view wx:for="{{card.people}}" wx:key="*this" class="chip">{{item}}</view>
+        <view wx:for="{{card.museumTags}}" wx:key="*this" class="chip chip-tag">{{item}}</view>
       </view>
     </view>
 
-    <view class="panel">
+    <view class="panel" wx:if="{{card.keywords && card.keywords.length}}">
       <view class="label">关键词</view>
       <view class="chips">
         <view wx:for="{{card.keywords}}" wx:key="*this" class="chip">{{item}}</view>
@@ -115,21 +242,21 @@
     </view>
 
     <view class="panel">
-      <view class="label">展品说明</view>
+      <view class="label">我这样记得</view>
       <view class="body">{{card.description}}</view>
     </view>
 
-    <view class="panel">
-      <view class="label">记忆谱系</view>
-      <view wx:for="{{card.memories}}" wx:key="text" class="memory-item">
-        <view class="memory-person">{{item.person}}</view>
-        <view class="body">{{item.text}}</view>
-      </view>
+    <view class="panel" wx:if="{{card.representativeQuote}}">
+      <view class="label">家人原话</view>
+      <view class="quote">"{{card.representativeQuote}}"</view>
     </view>
 
-    <view class="panel" wx:if="{{card.familyMessage}}">
-      <view class="label">家人留言</view>
-      <view class="body">{{card.familyMessage}}</view>
+    <view class="panel" wx:if="{{card.perspectives && card.perspectives.length}}">
+      <view class="label">家人记得</view>
+      <view wx:for="{{card.perspectives}}" wx:key="memory" class="memory-item">
+        <view class="memory-person">{{item.person}}</view>
+        <view class="body">{{item.memory}}</view>
+      </view>
     </view>
   </block>
 </view>

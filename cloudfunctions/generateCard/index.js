@@ -4,40 +4,85 @@ const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
-const SYSTEM_PROMPT = `你是一位家庭博物馆策展人。根据家人提供的物件信息和记忆碎片，
-为这件物品生成一张"展品卡"。你需要：
-1. 给物件起一个有温度的名字
-2. 判断与它相关的人物
-3. 提取 3-5 个关键词
-4. 写一段 80-150 字的展品描述
-5. 整理家人记忆，每条一句话
 
-只输出严格 JSON，不要 Markdown。`
+const SYSTEM_PROMPT = `你是一位家庭博物馆策展人。你的任务是根据家庭成员围绕一件旧物留下的真实记忆，生成一张家庭展品卡。
 
-function fallbackCard(object, contributions) {
-  const memoryTexts = contributions
-    .filter((item) => item.contentText)
-    .map((item) => item.contentText)
+必须遵守以下规则：
+
+1. 只能使用用户提供的记忆内容，不得编造人物、年代、事件、情节、用途或情感。
+2. 如果信息不足，要写得克制，可以保留“不确定”“家人还没有说清”的表达。
+3. 不要写成通用抒情文，不要使用空泛套话，例如“承载了岁月”“见证了时代”“满载回忆”等。
+4. representativeQuote 必须直接来自 memoryItems 中的 contentText 原文，不能改写，不能编造。
+5. 如果某条记忆 source 是 audio，但没有 transcriptText，则只能说明“留下了一段语音记忆”，不能推测语音内容。
+6. description 的叙述者必须是物件本身，用物件第一人称“我”来写。不要使用第三人称介绍物件，也不要使用老人或家人的第一人称。
+7. description 要通过物件视角讲述：我是谁、我和谁有关、我经历过什么、为什么我一直被留下。长度控制在 120-200 字。
+8. 物件第一人称要温暖、克制、有故事感，不拟人过度，不像童话，不卖萌，不煽情。
+9. perspectives 是“家人记得”模块，只整理真实人物视角，不能改成物件口吻。
+10. museumTags 只能从以下标签中选择 1-3 个：
+   "厨房馆"、"人物馆"、"迁徙馆"、"劳动馆"、"节庆馆"、"日常馆"、"手艺馆"、"童年馆"。
+11. 只输出严格 JSON，不要 Markdown，不要解释。`
+
+const VALID_TAGS = ['厨房馆', '人物馆', '迁徙馆', '劳动馆', '节庆馆', '日常馆', '手艺馆', '童年馆']
+
+function isPlaceholderText(text) {
+  if (!text) return true
+  const placeholders = [
+    '我留下了一段语音',
+    '我用语音讲了一段',
+    '我留下了一段语音记忆'
+  ]
+  return placeholders.some((p) => text.includes(p))
+}
+
+function findRepresentativeQuote(memoryItems) {
+  for (const item of memoryItems) {
+    if (item.source === 'audio' && !item.transcriptText) continue
+    if (item.contentText && !isPlaceholderText(item.contentText)) {
+      return item.contentText
+    }
+  }
+  return ''
+}
+
+function buildPerspectives(memoryItems) {
+  return memoryItems
+    .filter((item) => {
+      if (item.source === 'audio' && !item.transcriptText) return false
+      return item.contentText && !isPlaceholderText(item.contentText)
+    })
+    .slice(0, 6)
+    .map((item) => ({
+      person: item.authorName || '家人',
+      memory: item.contentText
+    }))
+}
+
+function fallbackCard(object, memoryItems) {
+  const quote = findRepresentativeQuote(memoryItems)
+  const perspectives = buildPerspectives(memoryItems)
 
   const titlePrefix = object.title && object.title !== '未知藏品'
     ? object.title
     : (object.objectNo || '这件旧物')
 
+  let description = ''
+  if (perspectives.length >= 2) {
+    const detail = perspectives.map((p) => p.memory).join('。')
+    description = `我是${titlePrefix}。家人围着我留下了${perspectives.length}段记忆，他们说起我的来处、用过我的人，也说起我差点被忘记的时刻。我不替他们补全没有说出口的故事，只把这些已经被记起的细节留在身上：${detail}`.slice(0, 200)
+  } else {
+    description = `我是${titlePrefix}。家人还没有把我的来处说完整，只留下了几句关于我的记忆。我先安静地待在这里，等他们继续说起我是谁、和谁有关，又为什么一直没有被丢掉。`
+  }
+
   return {
-    title: `关于${titlePrefix}的故事`,
-    people: ['爷爷', '奶奶', '爸爸', '孙女'],
-    keywords: ['陪伴', '习惯', '搬家', '舍不得'],
-    description: `这件物原本只是家中常见的旧物。经过家人的提问、补充和讲述，它被重新看见：它记录了日常生活里的习惯，也保存了几代人共同生活的痕迹。`,
-    memories: memoryTexts.length
-      ? memoryTexts.slice(0, 5).map((text) => ({
-          person: '讲述者',
-          text
-        }))
-      : [
-          { person: '奶奶', text: '这个杯子一直放在桌边，家里搬过几次也没有换掉。' },
-          { person: '孙女', text: '小时候总觉得它只是普通茶杯，现在才知道它和家里的日常有关。' }
-        ],
-    familyMessage: '一件旧物被留下来，不只是因为它有用，也因为它让家人重新说起彼此。'
+    title: `${titlePrefix}`,
+    keywords: ['旧物', '家庭记忆'],
+    shortIntro: perspectives.length
+      ? `${perspectives.length}位家人留下了关于这件旧物的记忆`
+      : '记忆还在收集和修复中',
+    description,
+    representativeQuote: quote,
+    perspectives,
+    museumTags: ['日常馆']
   }
 }
 
@@ -51,14 +96,8 @@ function callAi(prompt) {
   const body = JSON.stringify({
     model,
     messages: [
-      {
-        role: 'system',
-        content: SYSTEM_PROMPT
-      },
-      {
-        role: 'user',
-        content: prompt
-      }
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: prompt }
     ],
     temperature: 0.7
   })
@@ -75,9 +114,7 @@ function callAi(prompt) {
       }
     }, (res) => {
       let data = ''
-      res.on('data', (chunk) => {
-        data += chunk
-      })
+      res.on('data', (chunk) => { data += chunk })
       res.on('end', () => {
         try {
           const json = JSON.parse(data)
@@ -102,43 +139,79 @@ exports.main = async (event) => {
 
   const now = db.serverDate()
   const objectRes = await db.collection('objects').doc(event.objectId).get()
-  const contributionRes = await db.collection('contributions')
+  const memoryItemsRes = await db.collection('memoryItems')
     .where({ objectId: event.objectId })
     .orderBy('createdAt', 'asc')
     .get()
 
   const object = objectRes.data
-  const contributions = contributionRes.data
-  const prompt = `请根据家庭成员围绕一件旧物的接龙内容，生成一个家庭博物馆展品卡 JSON。
+  const memoryItems = memoryItemsRes.data
 
-字段必须是：
+  const prompt = `请根据下面这件旧物和家人留下的 memoryItems，生成一张家庭博物馆展品卡。
+
+输出 JSON 字段必须是：
+
 {
-  "title": "展品名称",
-  "people": ["关联人物"],
-  "keywords": ["关键词"],
-  "description": "展品说明",
-  "memories": [{ "person": "人物", "text": "记忆" }],
-  "familyMessage": "家人留言"
+  "title": "展品名称，格式类似：一直没有换的白瓷茶杯",
+  "keywords": ["3-5 个关键词"],
+  "shortIntro": "30 字以内的一句话简介",
+  "description": "120-200 字展品说明。必须使用物件第一人称“我”，由物件自己讲述，不能使用第三人称或老人第一人称",
+  "representativeQuote": "一句来自 contentText 的家人原话；如果没有合适原话，返回空字符串",
+  "perspectives": [
+    {
+      "person": "说话人",
+      "memory": "这个人提供的真实记忆，保持人物视角，不能改成物件口吻，不能虚构"
+    }
+  ],
+  "museumTags": ["从限定标签中选择 1-3 个"]
 }
 
-藏品：${object.title || '未知藏品'}
-接龙内容：${JSON.stringify(contributions.map((item) => ({
-    type: item.type,
-    source: item.source,
-    contentText: item.contentText
-  })))}`
+旧物信息：
+${JSON.stringify({
+  title: object.title || '未知藏品',
+  objectNo: object.objectNo || '',
+  status: object.status || '',
+  repairProgress: object.repairProgress || 0
+})}
+
+记忆条目 memoryItems：
+${JSON.stringify(memoryItems.map((item) => ({
+  authorName: item.authorName,
+  authorRole: item.authorRole,
+  kind: item.kind,
+  source: item.source,
+  contentText: item.contentText,
+  transcriptText: item.transcriptText || '',
+  audioDuration: item.audioDuration || 0,
+  parentId: item.parentId || null
+})))}
+
+注意：
+- contentText 如果是“我留下了一段语音”“我用语音讲了一段故事”这类占位句，不能当作真实原话。
+- source 为 audio 且 transcriptText 为空时，不要推测语音内容。
+- description 负责物件视角：物件自己说“我是谁、我和谁有关、我经历过什么、为什么我一直被留下”。
+- perspectives 是“家人记得”模块，只整理有真实文字内容的记忆，保留真实人物视角。
+- 不要把 description 写成童话、卖萌文、夸张拟人或煽情独白。
+- 如果记忆很少，宁可简短，也不要补故事。`
 
   let finalCard = null
   let aiGenerated = false
   try {
     finalCard = await callAi(prompt)
-    if (finalCard) aiGenerated = true
+    if (finalCard) {
+      aiGenerated = true
+      // 清洗 museumTags，确保只用限定标签
+      if (finalCard.museumTags) {
+        finalCard.museumTags = finalCard.museumTags.filter((t) => VALID_TAGS.includes(t))
+        if (!finalCard.museumTags.length) finalCard.museumTags = ['日常馆']
+      }
+    }
   } catch (error) {
     finalCard = null
   }
 
   if (!finalCard) {
-    finalCard = fallbackCard(object, contributions)
+    finalCard = fallbackCard(object, memoryItems)
   }
 
   await db.collection('objects').doc(event.objectId).update({
