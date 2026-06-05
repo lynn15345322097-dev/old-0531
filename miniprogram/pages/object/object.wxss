@@ -142,7 +142,7 @@
 .object-image {
   display: block;
   width: 100%;
-  height: 500rpx;
+  height: auto;
   background: #e8dece;
   transition: filter 0.4s ease;
 }
@@ -585,8 +585,9 @@
 
 /* === Card === */
 .hero-image {
+  display: block;
   width: 100%;
-  height: 480rpx;
+  height: auto;
   border-radius: 16rpx;
   background: #e8dece;
 }

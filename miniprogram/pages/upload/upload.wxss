@@ -6,7 +6,7 @@
 }
 
 .photo-box {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,11 +19,12 @@
   margin-bottom: 40rpx;
 }
 
-/* 已选择图片：切换为 block 撑满的预览容器，不再用 flex 居中 */
+/* 已选择图片：容器不再固定高度，跟着图片原比例撑开 */
 .photo-box.has-image {
   display: block;
   padding: 0;
-  height: 700rpx;
+  height: auto;
+  min-height: 0;
   flex: 0 0 auto;
   border-style: solid;
   border-color: #e5dac8;
@@ -50,7 +51,7 @@
 .preview {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
 .button-save {

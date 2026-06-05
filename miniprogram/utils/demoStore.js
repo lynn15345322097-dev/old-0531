@@ -62,9 +62,9 @@ const demoMemberList = Object.keys(demoMembers).map((key) => ({
 
 const demoCard = {
   title: '那只一直没有换掉的白瓷茶杯',
-  keywords: ['茉莉花茶', '搬家', '缺口', '陪伴'],
-  shortIntro: '一个普通茶杯，因为一直没换，成了家人共同的记忆坐标。',
-  description: '我是那只一直没有换掉的白瓷茶杯。奶奶陈桂兰把我上传进家庭博物馆，因为我陪她喝了很多年的茉莉花茶。爸爸胡英俊记得清晨桌上的茶香，妈妈张小丽记得搬家时把我包进旧毛巾，孙子图图记得小时候看奶奶端着我坐在窗边。我的价值不是贵重，而是家人从不同位置记得我为什么一直留在桌边。',
+  keywords: ['茉莉花茶', '搬家', '缺口', '窗边'],
+  shortIntro: '一个普通茶杯，因为一直没换，成了家人共同补充的记忆线索。',
+  description: '我是那只一直没有换掉的白瓷茶杯。杯口有缺口，杯身留着长期喝茶的痕迹。奶奶说，缺口不影响使用，顺手的东西舍不得换；爸爸补充，小时候每天早上都能闻到茉莉花茶味；妈妈记得，搬家时我被包进旧毛巾带走。现在我被保留下来，作为这个家庭关于喝茶、搬家和日常习惯的记忆线索。',
   representativeQuote: '杯子有缺口了也还能用，顺手的东西舍不得换。',
   perspectives: [
     { person: '陈桂兰', relation: '奶奶', memory: '杯子有缺口了也还能用，顺手的东西舍不得换。' },
@@ -320,6 +320,23 @@ function readState() {
         obj.repairProgress = 0
         needsMigration = true
       }
+    }
+    // 一次性清理 No.004-007（跑过一次就不再跑）
+    if (!saved.cleanedNo004_007) {
+      const removeNos = new Set(['No.004', 'No.005', 'No.006', 'No.007'])
+      const removedIds = new Set()
+      saved.objects = saved.objects.filter((obj) => {
+        if (removeNos.has(obj.objectNo)) {
+          removedIds.add(obj._id || obj.objectId)
+          return false
+        }
+        return true
+      })
+      for (const id of removedIds) {
+        delete saved.memoryItems[id]
+      }
+      saved.cleanedNo004_007 = true
+      needsMigration = true
     }
     if (needsMigration) {
       writeState(saved)
@@ -582,20 +599,189 @@ function isUploader(objectId) {
   return object.uploaderOpenid === state.user.openid
 }
 
+const PLACEHOLDER_PHRASES = ['留下了一段语音', '我用语音讲了一段', '语音记忆']
+
+// 物件细节：材质 / 颜色 / 磨损 / 痕迹 / 形态
+const DETAIL_REGEX = /(颜色|材质|木|布|绒|铝|瓷|釉|铁|铜|银|塑料|皮|纸|锈|裂|缺口|纹路|印|刻|烫|花纹|图案|杯口|杯底|边沿|底部|盖|缝|线|漆|发黄|发黑|发亮|发白|光滑|粗糙|痕迹|茶渍|油渍|斑|破|皱|褪色|掉漆|生锈|磨损|形状|大小|手感|分量)/
+// 摆放与使用场景
+const PLACE_REGEX = /(放在|摆在|挂在|搁在|收在|藏在|压在|窗|柜|床|桌|架|墙|阳台|抽屉|箱|角落|厨房|客厅|卧室|书房|楼上|楼下|门口|床头)/
+// 保留原因
+const REASON_REGEX = /(舍不得|留着|没扔|没换|没丢|从来没|始终|至今|顺手|习惯)/
+const DESCRIPTION_MAX = 180
+
+function isPlaceholder(text) {
+  if (!text) return true
+  return PLACEHOLDER_PHRASES.some((p) => text.includes(p))
+}
+
+function splitToShortSentences(text) {
+  if (!text) return []
+  return String(text)
+    .split(/[。！？!?；;\n]+/)
+    .map((s) => s.trim())
+    .filter((s) => s && s.length >= 2 && s.length <= 60)
+}
+
+function pickFirstSentence(text) {
+  const list = splitToShortSentences(text)
+  return list.length ? list[0] : (text || '').slice(0, 60)
+}
+
+function summarizeRelationMemory(memories) {
+  const fragments = []
+  for (const m of memories) {
+    if (isPlaceholder(m.contentText)) continue
+    const first = pickFirstSentence(m.contentText)
+    if (first && !fragments.includes(first)) fragments.push(first)
+    if (fragments.length >= 2) break
+  }
+  return fragments.join('，')
+}
+
+function pickSentence(sentences, regex, used) {
+  for (const s of sentences) {
+    if (used.has(s)) continue
+    if (regex.test(s)) {
+      used.add(s)
+      return s
+    }
+  }
+  return ''
+}
+
+function cleanSentence(text) {
+  return String(text || '').trim().replace(/[。！？!?；;]+$/g, '')
+}
+
+function compactMemoryForDescription(text, maxLength) {
+  let value = cleanSentence(text)
+  value = value
+    .replace(/^我(小时候|记得|印象里|后来才知道|那时候|总是|经常|每天)/, '$1')
+    .replace(/([，,；;])我(小时候|记得|印象里|后来才知道|那时候|总是|经常|每天)/g, '$1$2')
+    .replace(/^我说/, '')
+    .replace(/^我/, '')
+    .trim()
+  if (value.length <= maxLength) return value
+  const cutPoints = ['，', ',', '、']
+  for (const mark of cutPoints) {
+    const index = value.lastIndexOf(mark, maxLength)
+    if (index >= 8) return value.slice(0, index)
+  }
+  return value.slice(0, maxLength)
+}
+
+function buildDescription(parts, maxLength = DESCRIPTION_MAX) {
+  let description = ''
+  for (const raw of parts) {
+    const part = cleanSentence(raw)
+    if (!part) continue
+    const candidate = description ? `${description}${part}。` : `${part}。`
+    if (candidate.length <= maxLength) {
+      description = candidate
+    }
+  }
+  return description
+}
+
 function generateCard(objectId) {
   const state = readState()
   const object = state.objects.find((item) => item._id === objectId)
   if (!object) return null
 
   const items = (state.memoryItems[objectId] || [])
-  const quotes = items
-    .filter((item) => item.contentText)
-    .slice(-5)
-  const perspectives = quotes.map((item) => ({
-    person: item.authorName || '家人',
-    relation: item.authorRelation || '',
-    memory: item.contentText
-  }))
+  const usable = items.filter((item) => item.contentText && !isPlaceholder(item.contentText))
+
+  // 按 authorName + authorRelation 分组（保留爸爸/妈妈/奶奶/女儿等关系标签）
+  const groupMap = new Map()
+  for (const item of usable) {
+    const relation = item.authorRelation || ''
+    const person = item.authorName || '家人'
+    const key = `${person}|${relation}`
+    if (!groupMap.has(key)) {
+      groupMap.set(key, { person, relation, memories: [] })
+    }
+    groupMap.get(key).memories.push(item)
+  }
+  const groups = Array.from(groupMap.values())
+
+  // perspectives：保留每个家人独立视角，用于"家人记得"模块
+  const perspectives = groups.map((g) => ({
+    person: g.person,
+    relation: g.relation,
+    memory: summarizeRelationMemory(g.memories) || pickFirstSentence(g.memories[0].contentText)
+  })).filter((p) => p.memory)
+
+  // representativeQuote：从原文选最短最像原话的一句
+  const quoteCandidate = usable
+    .map((m) => pickFirstSentence(m.contentText))
+    .filter((s) => s && s.length >= 6 && s.length <= 50)
+    .sort((a, b) => a.length - b.length)[0]
+
+  // 从对话原文里抽：物件细节 / 摆放场景 / 保留原因
+  const allSentences = usable.flatMap((m) => splitToShortSentences(m.contentText))
+  const used = new Set()
+  const detailSentence = pickSentence(allSentences, DETAIL_REGEX, used)
+  const placeSentence = pickSentence(allSentences, PLACE_REGEX, used)
+  const reasonSentence = pickSentence(allSentences, REASON_REGEX, used)
+
+  // 兜底线索（信息不足时，用 memoryClues 中已有的标签补充合理日常场景，不编造具体人物经历）
+  const labels = (object.memoryClues && object.memoryClues.labels) || {}
+  const placeClues = labels.place_clue || []
+  const reasonClues = labels.reason_kept || []
+  const emotionClues = labels.emotion_clue || []
+  const eventClues = labels.event_clue || []
+
+  const titlePrefix = object.title && object.title !== '未知藏品' ? object.title : '一件被保留下来的旧物'
+
+  // === 按"物件第一视角"七步结构组装 description ===
+  const parts = []
+
+  // 1. 我是什么
+  parts.push(`我是${titlePrefix}`)
+
+  // 2. 物件细节（必有，至少一个具象细节）
+  if (detailSentence) {
+    parts.push(compactMemoryForDescription(detailSentence, 42))
+  } else if (emotionClues.length) {
+    parts.push(`身上还能找到${emotionClues.slice(0, 2).join('、')}的痕迹`)
+  } else {
+    parts.push('表面留着长期使用的痕迹')
+  }
+
+  // 3. 摆放与使用场景
+  if (placeSentence) {
+    parts.push(compactMemoryForDescription(placeSentence, 42))
+  } else if (placeClues.length) {
+    parts.push(`我曾被放在${placeClues.slice(0, 2).join('、')}`)
+  }
+
+  // 4. 家人讲述（按 authorRelation 出"XX 说 / 补充 / 记得"）
+  if (perspectives.length) {
+    const VERBS = ['说', '补充', '记得', '也提到']
+    const lines = perspectives.slice(0, 2).map((p, i) => {
+      const who = p.relation || p.person
+      const memory = compactMemoryForDescription(p.memory, 34)
+      return memory ? `${who}${VERBS[i] || '记得'}，${memory}` : ''
+    })
+    parts.push(lines.filter(Boolean).join('；'))
+  }
+
+  // 5. 我为什么被保存下来
+  if (reasonSentence) {
+    parts.push(compactMemoryForDescription(reasonSentence, 42))
+  } else if (reasonClues.length && !REASON_REGEX.test(detailSentence || '')) {
+    parts.push(`后来我也没被换掉，家人提到${reasonClues.slice(0, 2).join('、')}`)
+  }
+
+  // 6. 现在作为家庭展品承载什么日常记忆（不夸张煽情）
+  const topicClues = [].concat(eventClues, placeClues, emotionClues).slice(0, 2)
+  const topic = topicClues.length ? topicClues.join('与') : '日常生活'
+  parts.push(`现在我被保留下来，作为这个家庭关于${topic}的记忆线索`)
+
+  let description = buildDescription(parts)
+  if (description.length < 90 && perspectives.length === 0) {
+    description = `我是${titlePrefix}。表面留着长期使用的痕迹。关于我的材料还在补充，家人可以继续记录我的来源、摆放位置、使用场景和被保留下来的原因。`
+  }
 
   const finalCard = {
     title: object.title === '未知藏品' ? `${object.objectNo} 被重新记住的东西` : object.title,
@@ -603,12 +789,10 @@ function generateCard(objectId) {
     shortIntro: perspectives.length
       ? `${perspectives.length}位家人留下了关于这件旧物的记忆`
       : '记忆还在收集和修复中',
-    description: object.title === '未知藏品'
-      ? `我还没有被家人准确叫出名字。有人提问，有人补充，也有人开始讲起和我有关的片段。我先从模糊的照片里慢慢清楚起来，等他们继续说出我是谁、谁用过我、我为什么一直被留在家里。`
-      : `我是${object.title}。家人围绕我留下了${perspectives.length}段记忆，他们说起我的样子、用过我的人，也说起我被留下的原因。我不替他们补全没有说出口的故事，只把已经被记起的细节安静地留在身上。`,
-    representativeQuote: quotes.length ? quotes[0].contentText : '',
+    description,
+    representativeQuote: quoteCandidate || '',
     perspectives: perspectives.length ? perspectives : [
-      { person: '家人', memory: '我们重新围着这件旧物说起了过去的生活。' }
+      { person: '家人', relation: '', memory: '我们重新围着这件旧物说起了过去的生活。' }
     ],
     museumTags: ['日常馆']
   }

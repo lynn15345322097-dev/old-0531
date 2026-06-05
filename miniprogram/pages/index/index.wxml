@@ -1,8 +1,8 @@
 <view class="page home">
   <view class="hero">
     <view class="slogan">那些没有被丢掉的东西</view>
+    <view class="notice">本人正在赶开题 ́，这个还没开发完，微信lynnnnxxxl，欢迎提建议！</view>
     <view class="main-title">拍下家里的东西，<text class="highlight">讲讲它的故事</text></view>
-    <view class="hint">每件东西背后，都有家人记得的故事</view>
   </view>
 
   <view class="actions">

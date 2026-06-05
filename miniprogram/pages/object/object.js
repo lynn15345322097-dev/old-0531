@@ -179,15 +179,25 @@ Page({
     this.setData({ objectId: options.objectId })
     this._recordTimer = null
     this._audioContext = null
+    this._discardRecording = false
     this.bindRecorder()
     this.initAudioContext()
     this.loadData()
   },
 
+  onHide() {
+    this.stopActiveRecording(true)
+  },
+
   onUnload() {
+    this.stopActiveRecording(true)
     if (this._recordTimer) {
       clearInterval(this._recordTimer)
       this._recordTimer = null
+    }
+    if (this._autoGenTimer) {
+      clearTimeout(this._autoGenTimer)
+      this._autoGenTimer = null
     }
     if (this._audioContext) {
       this._audioContext.stop()
@@ -212,11 +222,14 @@ Page({
     })
 
     recorder.onStop((res) => {
+      const shouldDiscard = this._discardRecording
+      this._discardRecording = false
       this.setData({ recording: false })
       if (this._recordTimer) {
         clearInterval(this._recordTimer)
         this._recordTimer = null
       }
+      if (shouldDiscard) return
 
       const duration = Math.round(res.duration / 1000)
       if (duration < 2) {
@@ -236,6 +249,21 @@ Page({
       }
       wx.showToast({ title: '录音失败，请重试', icon: 'none' })
     })
+  },
+
+  stopActiveRecording(discard) {
+    if (!this.data.recording) return
+    this._discardRecording = !!discard
+    try {
+      recorder.stop()
+    } catch (e) {
+      console.error('[recorder:stop] failed', e)
+    }
+    if (this._recordTimer) {
+      clearInterval(this._recordTimer)
+      this._recordTimer = null
+    }
+    this.setData({ recording: false })
   },
 
   loadData() {
@@ -343,6 +371,17 @@ Page({
     if (extra) Object.assign(updates, extra)
     this.setData(updates)
     wx.showToast({ title: repairReason || '已保存', icon: 'none', duration: 2500 })
+    this.scheduleAutoGenerateCard()
+  },
+
+  scheduleAutoGenerateCard() {
+    // 提交记忆成功后防抖触发，4 秒内多次提交只跑一次；手动按钮保留兜底。
+    if (this._autoGenTimer) clearTimeout(this._autoGenTimer)
+    this._autoGenTimer = setTimeout(() => {
+      this._autoGenTimer = null
+      if (this.data.generating) return
+      this.generateCard({ silent: true })
+    }, 4000)
   },
 
   onQuote(event) {
@@ -641,7 +680,8 @@ Page({
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
-  generateCard() {
+  generateCard(options) {
+    const silent = !!(options && options.silent)
     this.setData({ generating: true })
 
     if (demoStore.DEMO_MODE) {
@@ -659,7 +699,7 @@ Page({
       },
       fail: (err) => {
         console.error('[cloud:generateCard] failed', err)
-        wx.showToast({ title: '生成失败', icon: 'error' })
+        if (!silent) wx.showToast({ title: '生成失败', icon: 'error' })
       },
       complete: () => {
         this.setData({ generating: false })

@@ -1,6 +1,6 @@
 <view class="page">
   <view class="photo-box {{tempImage ? 'has-image' : ''}}" bindtap="chooseImage">
-    <image wx:if="{{tempImage}}" class="preview" src="{{tempImage}}" mode="aspectFill" />
+    <image wx:if="{{tempImage}}" class="preview" src="{{tempImage}}" mode="widthFix" />
     <view wx:else class="photo-placeholder">
       <view class="placeholder-icon">📷</view>
       <view class="placeholder-text">拍照 / 选择家里的物件</view>

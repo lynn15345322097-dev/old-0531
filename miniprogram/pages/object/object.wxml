@@ -33,7 +33,7 @@ module.exports = { duration: duration }
       <image
         class="object-image"
         src="{{object.displayImage || object.imageProcessed || object.imageOriginal}}"
-        mode="aspectFill"
+        mode="widthFix"
         style="filter: {{filterStyle}};"
       />
     </view>
@@ -197,7 +197,7 @@ module.exports = { duration: duration }
       <image
         class="object-image"
         src="{{object.displayImage || object.imageProcessed || object.imageOriginal}}"
-        mode="aspectFill"
+        mode="widthFix"
         style="filter: {{filterStyle}};"
       />
     </view>
@@ -297,7 +297,7 @@ module.exports = { duration: duration }
 
   <!-- ===== 状态 3: 已生成展品卡 ===== -->
   <block wx:if="{{card}}">
-    <image class="hero-image" src="{{object.displayImage || object.imageOriginal}}" mode="aspectFill" />
+    <image class="hero-image" src="{{object.displayImage || object.imageOriginal}}" mode="widthFix" />
 
     <view class="card-title">{{card.title}}</view>
     <view class="card-subtitle">{{object.objectNo}} · 家庭展品卡</view>

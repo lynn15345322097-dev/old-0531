@@ -15,7 +15,7 @@
       data-id="{{item._id}}"
       bindtap="goObject"
     >
-      <image class="cover" src="{{item.imageOriginal}}" mode="aspectFill" />
+      <image class="cover" src="{{item.imageOriginal}}" mode="aspectFit" />
       <view class="card-main">
         <view class="card-title">{{item.displayTitle || item.title}}</view>
         <view class="card-meta">
