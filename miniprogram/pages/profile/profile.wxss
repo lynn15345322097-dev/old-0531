@@ -50,9 +50,68 @@
   color: #23201b;
 }
 
-.elder-badge {
+.member-badge {
   color: #aa7d54;
   font-size: 32rpx;
+}
+
+/* === Local preview switch === */
+.demo-switch-panel {
+  text-align: left;
+}
+
+.switch-desc {
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #998f7e;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+}
+
+.member-btn {
+  min-width: 0;
+  height: 112rpx;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #ded2bf;
+  background: #fff;
+  color: #23201b;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  line-height: 1.3;
+}
+
+.member-btn::after {
+  border: none;
+}
+
+.member-btn.active {
+  background: #23201b;
+  border-color: #23201b;
+  color: #fff;
+}
+
+.member-name {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.member-relation {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #998f7e;
+}
+
+.member-btn.active .member-relation {
+  color: #d9c8a8;
 }
 
 /* === Invite === */

@@ -130,6 +130,24 @@
   border-radius: 10rpx;
   background: #e8dece;
   flex-shrink: 0;
+  transition: filter 0.4s ease;
+}
+
+/* 缩略图按修复进度分档：参数比详情页温和，确保 96rpx 小图仍能看出形状 */
+.thumb.progress-0 {
+  filter: grayscale(100%) blur(6rpx) contrast(0.7) brightness(0.85) saturate(0);
+}
+.thumb.progress-25 {
+  filter: grayscale(85%) blur(4rpx) contrast(0.8) brightness(0.9) saturate(0.2);
+}
+.thumb.progress-50 {
+  filter: grayscale(60%) blur(2.5rpx) contrast(0.9) brightness(0.95) saturate(0.5);
+}
+.thumb.progress-75 {
+  filter: grayscale(25%) blur(1rpx) contrast(0.95) brightness(1) saturate(0.8);
+}
+.thumb.progress-100 {
+  filter: none;
 }
 
 .row-text {

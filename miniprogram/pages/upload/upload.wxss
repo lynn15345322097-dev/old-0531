@@ -19,6 +19,16 @@
   margin-bottom: 40rpx;
 }
 
+/* 已选择图片：切换为 block 撑满的预览容器，不再用 flex 居中 */
+.photo-box.has-image {
+  display: block;
+  padding: 0;
+  height: 700rpx;
+  flex: 0 0 auto;
+  border-style: solid;
+  border-color: #e5dac8;
+}
+
 .photo-placeholder {
   display: flex;
   flex-direction: column;
@@ -38,6 +48,7 @@
 }
 
 .preview {
+  display: block;
   width: 100%;
   height: 100%;
 }

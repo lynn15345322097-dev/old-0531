@@ -21,7 +21,6 @@ exports.main = async (event) => {
 
   const family = familyQuery.data[0]
   const userName = event.userName || '家庭成员'
-  const role = event.role || 'family'
   const relation = event.relation || '其他'
 
   // 更新或创建用户，绑定到该家庭
@@ -31,7 +30,6 @@ exports.main = async (event) => {
     openid,
     familyId: family.familyId,
     name: userName,
-    role,
     relation,
     updatedAt: now
   }

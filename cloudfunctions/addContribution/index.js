@@ -238,42 +238,44 @@ exports.main = async (event) => {
     throw new Error('你不属于该藏品所属的家庭')
   }
 
-  const authorName = user.name || '我'
-  const authorRole = user.role || 'family'
+  const authorName = user.name || '家人'
+  const authorRelation = user.relation || ''
 
   // 线索分析
   const analysis = source === 'text' && event.contentText
     ? analyzeMemoryItem(event.contentText)
     : { clues: [], analyzer: 'mock-v1' }
 
+  // 线索分析结果仍然保留写入，供后续生成展品卡使用，
+  // 但不再用它自动计算 repairProgress —— 进度由发起者人工评定（setMemoryRepair）。
   const existingClues = objectRes.data.memoryClues || { targetCount: CLUE_TARGET, discoveredTypes: [], labels: {} }
   const mergedClues = mergeClues(existingClues, analysis)
-  const repairProgress = Math.min(100, Math.round(mergedClues.discoveredTypes.length / CLUE_TARGET * 100))
   const newlyDiscovered = mergedClues.newClues || []
 
-  let repairReason = ''
-  if (newlyDiscovered.length) {
-    repairReason = '发现新线索：' + newlyDiscovered.map((c) => c.label).join('、')
-  } else {
-    repairReason = '记忆已记录，线索没有新增'
-  }
+  const currentProgress = objectRes.data.repairProgress || 0
+  const repairReason = '已保存，等待发起者评定贡献度'
 
   const memoryId = `${openid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const memoryItem = {
     _id: memoryId,
     memoryId,
     objectId: event.objectId,
-    userId: openid,
+    familyId: user.familyId,
+    authorOpenid: openid,
     authorName,
-    authorRole,
+    authorRelation,
     parentId: event.parentId || null,
-    targetRole: event.targetRole || null,
+    quotedAuthorName: event.quotedAuthorName || '',
+    quotedExcerpt: event.quotedExcerpt || '',
     kind,
     source,
     contentText: event.contentText || '',
     audioUrl: event.audioUrl || '',
     audioDuration: event.audioDuration || 0,
-    repairDelta: newlyDiscovered.length,
+    repairPercent: null,
+    reviewedByOpenid: '',
+    reviewedAt: null,
+    repairDelta: 0,
     repairReason,
     analysis,
     createdAt: now
@@ -281,26 +283,22 @@ exports.main = async (event) => {
 
   await db.collection('memoryItems').add({ data: memoryItem })
 
-  const status = repairProgress >= 100 ? 'completed' : 'repairing'
-
+  // 不动 repairProgress / status / completedAt，只刷新 memoryClues 和 updatedAt
   await db.collection('objects').doc(event.objectId).update({
     data: {
-      repairProgress,
       memoryClues: {
         targetCount: mergedClues.targetCount,
         discoveredTypes: mergedClues.discoveredTypes,
         labels: mergedClues.labels
       },
-      status,
-      updatedAt: now,
-      completedAt: status === 'completed' ? now : null
+      updatedAt: now
     }
   })
 
   return {
     memoryItem,
-    repairDelta: newlyDiscovered.length,
-    repairProgress,
+    repairDelta: 0,
+    repairProgress: currentProgress,
     repairReason,
     newClues: newlyDiscovered,
     clueCount: mergedClues.discoveredTypes.length,

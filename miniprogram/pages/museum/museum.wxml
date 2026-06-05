@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="title">老东西</view>
+  <view class="title">家庭博物馆</view>
 
   <view class="tabs">
     <view class="tab {{status === 'all' ? 'active' : ''}}" data-status="all" bindtap="switchStatus">全部</view>
@@ -18,6 +18,11 @@
       <image class="cover" src="{{item.imageOriginal}}" mode="aspectFill" />
       <view class="card-main">
         <view class="card-title">{{item.displayTitle || item.title}}</view>
+        <view class="card-meta">
+          <text wx:if="{{item.uploaderName}}">{{item.uploaderName}}上传</text>
+          <text wx:if="{{item.participantCount}}" class="meta-sep">·</text>
+          <text wx:if="{{item.participantCount}}">{{item.participantCount}}人参与</text>
+        </view>
         <!-- 已入馆：显示关键词 -->
         <view wx:if="{{item.status === 'completed' && item.finalCard && item.finalCard.keywords}}" class="keywords">
           <view wx:for="{{item.finalCard.keywords}}" wx:for-item="kw" wx:key="*this" class="kw-tag">{{kw}}</view>

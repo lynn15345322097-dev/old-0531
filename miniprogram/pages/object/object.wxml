@@ -14,6 +14,10 @@ module.exports = { duration: duration }
     <view class="repair-head">
       <view class="object-no">{{object.objectNo || 'No.001'}}</view>
       <view class="progress-label">记忆正在修复 {{object.repairProgress || 0}}%</view>
+      <view wx:if="{{object.uploaderDisplayName}}" class="object-admin-row">
+        <text class="admin-badge">藏品管理员</text>
+        <text class="object-admin-name">{{object.uploaderDisplayName}}</text>
+      </view>
       <view class="clue-progress">
         <text class="clue-count">已发现记忆线索 {{clueCount}} / {{clueTarget}}</text>
       </view>
@@ -28,7 +32,7 @@ module.exports = { duration: duration }
     <view class="image-wrap">
       <image
         class="object-image"
-        src="{{object.imageProcessed || object.imageOriginal}}"
+        src="{{object.displayImage || object.imageProcessed || object.imageOriginal}}"
         mode="aspectFill"
         style="filter: {{filterStyle}};"
       />
@@ -51,29 +55,38 @@ module.exports = { duration: duration }
       </view>
     </view>
 
-    <!-- 我来讲讲它 -->
+    <!-- 家庭成员一起补全记忆 -->
     <view class="repair-module">
-      <view class="repair-module-title">我来讲讲它</view>
-      <view class="repair-module-desc">每讲一点，这件老东西就会更清楚一点。</view>
+      <view class="repair-module-title">一起补全它的记忆</view>
+      <view class="repair-module-desc">每多一段讲述，这件东西的故事就更完整一点。</view>
+      <view class="repair-hint">可以补充：这是谁的、从哪里来、什么时候用过、放在哪里、发生过什么、为什么一直留下。</view>
+
+      <view wx:if="{{quoting}}" class="quote-preview">
+        <view class="quote-preview-body">
+          <text class="quote-preview-label">引用</text>
+          <text class="quote-preview-author">{{quoting.authorName}}：</text>
+          <text class="quote-preview-text">{{quoting.excerpt}}</text>
+        </view>
+        <view class="quote-preview-clear" bindtap="clearQuote">×</view>
+      </view>
 
       <textarea
         class="repair-textarea"
-        placeholder="说说它为什么还在，或者它和谁有关"
+        placeholder="说说你和它有关的记忆"
         value="{{contentText}}"
         bindinput="onInput"
       />
 
       <view class="repair-buttons">
-        <button class="repair-btn memory-btn" data-kind="memory" bindtap="submitByKind">讲一段记忆</button>
-        <button class="repair-btn answer-btn" data-kind="answer" bindtap="submitByKind">回答家人的问题</button>
+        <button class="repair-btn memory-btn" data-kind="memory" bindtap="submitByKind">保存为记忆档案</button>
       </view>
 
       <button
-        class="elder-voice-btn {{recording ? 'is-recording' : ''}}"
+        class="voice-btn {{recording ? 'is-recording' : ''}}"
         bindtap="toggleRecord"
       >
         <view wx:if="{{!recording}}">
-          <text class="elder-voice-icon">🎤</text>
+          <text class="voice-icon">🎤</text>
           <text>点击开始录音</text>
         </view>
         <view wx:else class="recording-info">
@@ -86,57 +99,86 @@ module.exports = { duration: duration }
     <!-- 记忆档案 -->
     <view class="panel">
       <view class="section-title">记忆档案</view>
-      <block wx:if="{{threadedItems.length}}">
-        <block wx:for="{{threadedItems}}" wx:for-item="root" wx:key="memoryId">
-          <!-- 根卡片 -->
-          <view class="memory-card card-{{root.kind}}">
+      <block wx:if="{{memoryGroups.length}}">
+        <block wx:for="{{memoryGroups}}" wx:for-item="item" wx:key="memoryId">
+          <view class="memory-card card-{{item.kind}} member-{{item.relationClass}}">
             <view class="card-bar"></view>
             <view class="card-body">
+              <view wx:if="{{item.quotedExcerpt}}" class="quote-box">
+                <text class="quote-box-author">引用 {{item.quotedDisplayName || '家人'}}：</text>
+                <text class="quote-box-text">{{item.quotedExcerpt}}</text>
+              </view>
               <view class="card-head">
                 <view class="card-author">
-                  {{root.authorName}}
-                  <text wx:if="{{root.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                  <text>{{item.displayName}}</text>
+                  <text wx:if="{{item.isObjectAdmin}}" class="admin-badge">藏品管理员</text>
                 </view>
-                <view class="card-delta">+{{root.repairDelta}}%</view>
+                <view class="card-delta">{{item.repairPercentText}}</view>
               </view>
-              <view class="card-content" wx:if="{{root.contentText}}">{{root.displayText || root.contentText}}</view>
-              <view wx:if="{{root.audioUrl}}" class="audio-player" data-memory-id="{{root._id}}" data-audio-url="{{root.audioUrl}}" bindtap="playAudio">
-                <view class="audio-icon">{{playingId === root._id ? '⏸' : '▶'}}</view>
-                <view class="audio-duration">{{fmt.duration(root.audioDuration)}}</view>
+              <view class="card-content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+              <view wx:if="{{item.audioUrl}}" class="audio-player" data-memory-id="{{item._id}}" data-audio-url="{{item.audioUrl}}" bindtap="playAudio">
+                <view class="audio-icon">{{playingId === item._id ? '⏸' : '▶'}}</view>
+                <view class="audio-duration">{{fmt.duration(item.audioDuration)}}</view>
                 <view class="audio-bar-wrap">
-                  <view class="audio-bar-fill {{playingId === root._id ? 'active' : ''}}" style="width: {{playingId === root._id ? audioProgress + '%' : '0%'}}"></view>
+                  <view class="audio-bar-fill {{playingId === item._id ? 'active' : ''}}" style="width: {{playingId === item._id ? audioProgress + '%' : '0%'}}"></view>
                 </view>
               </view>
-              <view class="card-time">{{root.createdAt}}</view>
+              <view class="card-time">{{item.createdAt}}</view>
+
+              <view class="card-actions">
+                <view class="card-action quote-btn" data-id="{{item.memoryId || item._id}}" bindtap="onQuote">引用补充</view>
+                <picker
+                  wx:if="{{isUploader}}"
+                  class="card-action repair-picker"
+                  mode="selector"
+                  range="{{repairOptionLabels}}"
+                  value="{{item.repairOptionIndex}}"
+                  data-id="{{item.memoryId || item._id}}"
+                  bindchange="onPickRepair"
+                >
+                  <view>本条帮助修复 {{item.repairPercentText}}</view>
+                </picker>
+              </view>
+
+              <view wx:if="{{item.replies && item.replies.length}}" class="reply-list">
+                <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="memoryId" class="reply-item member-{{reply.relationClass}}">
+                  <view class="reply-head">
+                    <view class="reply-author">
+                      <text>↳ {{reply.displayName}}</text>
+                      <text wx:if="{{reply.isObjectAdmin}}" class="admin-badge">藏品管理员</text>
+                    </view>
+                    <view class="card-delta">{{reply.repairPercentText}}</view>
+                  </view>
+                  <view class="reply-content" wx:if="{{reply.contentText}}">{{reply.contentText}}</view>
+                  <view wx:if="{{reply.audioUrl}}" class="audio-player" data-memory-id="{{reply._id}}" data-audio-url="{{reply.audioUrl}}" bindtap="playAudio">
+                    <view class="audio-icon">{{playingId === reply._id ? '⏸' : '▶'}}</view>
+                    <view class="audio-duration">{{fmt.duration(reply.audioDuration)}}</view>
+                    <view class="audio-bar-wrap">
+                      <view class="audio-bar-fill {{playingId === reply._id ? 'active' : ''}}" style="width: {{playingId === reply._id ? audioProgress + '%' : '0%'}}"></view>
+                    </view>
+                  </view>
+                  <view class="card-time">{{reply.createdAt}}</view>
+                  <view class="card-actions">
+                    <view class="card-action quote-btn" data-id="{{reply.memoryId || reply._id}}" bindtap="onQuote">引用补充</view>
+                    <picker
+                      wx:if="{{isUploader}}"
+                      class="card-action repair-picker"
+                      mode="selector"
+                      range="{{repairOptionLabels}}"
+                      value="{{reply.repairOptionIndex}}"
+                      data-id="{{reply.memoryId || reply._id}}"
+                      bindchange="onPickRepair"
+                    >
+                      <view>本条帮助修复 {{reply.repairPercentText}}</view>
+                    </picker>
+                  </view>
+                </view>
+              </view>
             </view>
           </view>
-          <!-- 子卡片（回复） -->
-          <block wx:for="{{root.children}}" wx:for-item="child" wx:key="memoryId">
-            <view class="memory-card child card-{{child.kind}}">
-              <view class="card-bar"></view>
-              <view class="card-body">
-                <view class="card-head">
-                  <view class="card-author">
-                    {{child.authorName}}
-                    <text wx:if="{{child.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
-                  </view>
-                  <view class="card-delta">+{{child.repairDelta}}%</view>
-                </view>
-                <view class="card-content" wx:if="{{child.contentText}}">{{child.displayText || child.contentText}}</view>
-                <view wx:if="{{child.audioUrl}}" class="audio-player" data-memory-id="{{child._id}}" data-audio-url="{{child.audioUrl}}" bindtap="playAudio">
-                  <view class="audio-icon">{{playingId === child._id ? '⏸' : '▶'}}</view>
-                  <view class="audio-duration">{{fmt.duration(child.audioDuration)}}</view>
-                  <view class="audio-bar-wrap">
-                    <view class="audio-bar-fill {{playingId === child._id ? 'active' : ''}}" style="width: {{playingId === child._id ? audioProgress + '%' : '0%'}}"></view>
-                  </view>
-                </view>
-                <view class="card-time">{{child.createdAt}}</view>
-              </view>
-            </view>
-          </block>
         </block>
       </block>
-      <view wx:else class="empty">家人还没来问，你也可以先讲一段。</view>
+      <view wx:else class="empty">还没有人留下记忆，你先来讲一段吧。</view>
     </view>
   </block>
 
@@ -145,85 +187,121 @@ module.exports = { duration: duration }
     <view class="repair-head">
       <view class="object-no">{{object.objectNo || 'No.001'}}</view>
       <view class="progress-label done">记忆修复已完成</view>
+      <view wx:if="{{object.uploaderDisplayName}}" class="object-admin-row">
+        <text class="admin-badge">藏品管理员</text>
+        <text class="object-admin-name">{{object.uploaderDisplayName}}</text>
+      </view>
     </view>
 
     <view class="image-wrap">
       <image
         class="object-image"
-        src="{{object.imageProcessed || object.imageOriginal}}"
+        src="{{object.displayImage || object.imageProcessed || object.imageOriginal}}"
         mode="aspectFill"
         style="filter: {{filterStyle}};"
       />
     </view>
 
     <view class="congrats-banner">
-      <view class="congrats-text">讲得差不多了，这件老东西被重新看见了</view>
+      <view class="congrats-text">讲得差不多了，这件东西被重新看见了</view>
       <view class="congrats-desc">现在可以为它生成一张家庭展品卡</view>
     </view>
 
     <view class="panel">
       <view class="section-title">记忆档案</view>
-      <block wx:if="{{threadedItems.length}}">
-        <block wx:for="{{threadedItems}}" wx:for-item="root" wx:key="memoryId">
-          <view class="memory-card card-{{root.kind}}">
+      <block wx:if="{{memoryGroups.length}}">
+        <block wx:for="{{memoryGroups}}" wx:for-item="item" wx:key="memoryId">
+          <view class="memory-card card-{{item.kind}} member-{{item.relationClass}}">
             <view class="card-bar"></view>
             <view class="card-body">
+              <view wx:if="{{item.quotedExcerpt}}" class="quote-box">
+                <text class="quote-box-author">引用 {{item.quotedDisplayName || '家人'}}：</text>
+                <text class="quote-box-text">{{item.quotedExcerpt}}</text>
+              </view>
               <view class="card-head">
                 <view class="card-author">
-                  {{root.authorName}}
-                  <text wx:if="{{root.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
+                  <text>{{item.displayName}}</text>
+                  <text wx:if="{{item.isObjectAdmin}}" class="admin-badge">藏品管理员</text>
                 </view>
-                <view class="card-delta">+{{root.repairDelta}}%</view>
+                <view class="card-delta">{{item.repairPercentText}}</view>
               </view>
-              <view class="card-content" wx:if="{{root.contentText}}">{{root.displayText || root.contentText}}</view>
-              <view wx:if="{{root.audioUrl}}" class="audio-player" data-memory-id="{{root._id}}" data-audio-url="{{root.audioUrl}}" bindtap="playAudio">
-                <view class="audio-icon">{{playingId === root._id ? '⏸' : '▶'}}</view>
-                <view class="audio-duration">{{fmt.duration(root.audioDuration)}}</view>
+              <view class="card-content" wx:if="{{item.contentText}}">{{item.contentText}}</view>
+              <view wx:if="{{item.audioUrl}}" class="audio-player" data-memory-id="{{item._id}}" data-audio-url="{{item.audioUrl}}" bindtap="playAudio">
+                <view class="audio-icon">{{playingId === item._id ? '⏸' : '▶'}}</view>
+                <view class="audio-duration">{{fmt.duration(item.audioDuration)}}</view>
                 <view class="audio-bar-wrap">
-                  <view class="audio-bar-fill {{playingId === root._id ? 'active' : ''}}" style="width: {{playingId === root._id ? audioProgress + '%' : '0%'}}"></view>
+                  <view class="audio-bar-fill {{playingId === item._id ? 'active' : ''}}" style="width: {{playingId === item._id ? audioProgress + '%' : '0%'}}"></view>
                 </view>
               </view>
-              <view class="card-time">{{root.createdAt}}</view>
+              <view class="card-time">{{item.createdAt}}</view>
+
+              <view class="card-actions">
+                <view class="card-action quote-btn" data-id="{{item.memoryId || item._id}}" bindtap="onQuote">引用补充</view>
+                <picker
+                  wx:if="{{isUploader}}"
+                  class="card-action repair-picker"
+                  mode="selector"
+                  range="{{repairOptionLabels}}"
+                  value="{{item.repairOptionIndex}}"
+                  data-id="{{item.memoryId || item._id}}"
+                  bindchange="onPickRepair"
+                >
+                  <view>本条帮助修复 {{item.repairPercentText}}</view>
+                </picker>
+              </view>
+
+              <view wx:if="{{item.replies && item.replies.length}}" class="reply-list">
+                <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="memoryId" class="reply-item member-{{reply.relationClass}}">
+                  <view class="reply-head">
+                    <view class="reply-author">
+                      <text>↳ {{reply.displayName}}</text>
+                      <text wx:if="{{reply.isObjectAdmin}}" class="admin-badge">藏品管理员</text>
+                    </view>
+                    <view class="card-delta">{{reply.repairPercentText}}</view>
+                  </view>
+                  <view class="reply-content" wx:if="{{reply.contentText}}">{{reply.contentText}}</view>
+                  <view wx:if="{{reply.audioUrl}}" class="audio-player" data-memory-id="{{reply._id}}" data-audio-url="{{reply.audioUrl}}" bindtap="playAudio">
+                    <view class="audio-icon">{{playingId === reply._id ? '⏸' : '▶'}}</view>
+                    <view class="audio-duration">{{fmt.duration(reply.audioDuration)}}</view>
+                    <view class="audio-bar-wrap">
+                      <view class="audio-bar-fill {{playingId === reply._id ? 'active' : ''}}" style="width: {{playingId === reply._id ? audioProgress + '%' : '0%'}}"></view>
+                    </view>
+                  </view>
+                  <view class="card-time">{{reply.createdAt}}</view>
+                  <view class="card-actions">
+                    <view class="card-action quote-btn" data-id="{{reply.memoryId || reply._id}}" bindtap="onQuote">引用补充</view>
+                    <picker
+                      wx:if="{{isUploader}}"
+                      class="card-action repair-picker"
+                      mode="selector"
+                      range="{{repairOptionLabels}}"
+                      value="{{reply.repairOptionIndex}}"
+                      data-id="{{reply.memoryId || reply._id}}"
+                      bindchange="onPickRepair"
+                    >
+                      <view>本条帮助修复 {{reply.repairPercentText}}</view>
+                    </picker>
+                  </view>
+                </view>
+              </view>
             </view>
           </view>
-          <block wx:for="{{root.children}}" wx:for-item="child" wx:key="memoryId">
-            <view class="memory-card child card-{{child.kind}}">
-              <view class="card-bar"></view>
-              <view class="card-body">
-                <view class="card-head">
-                  <view class="card-author">
-                    {{child.authorName}}
-                    <text wx:if="{{child.authorRole === 'elder'}}" class="elder-badge">· 老东西讲述</text>
-                  </view>
-                  <view class="card-delta">+{{child.repairDelta}}%</view>
-                </view>
-                <view class="card-content" wx:if="{{child.contentText}}">{{child.displayText || child.contentText}}</view>
-                <view wx:if="{{child.audioUrl}}" class="audio-player" data-memory-id="{{child._id}}" data-audio-url="{{child.audioUrl}}" bindtap="playAudio">
-                  <view class="audio-icon">{{playingId === child._id ? '⏸' : '▶'}}</view>
-                  <view class="audio-duration">{{fmt.duration(child.audioDuration)}}</view>
-                  <view class="audio-bar-wrap">
-                    <view class="audio-bar-fill {{playingId === child._id ? 'active' : ''}}" style="width: {{playingId === child._id ? audioProgress + '%' : '0%'}}"></view>
-                  </view>
-                </view>
-                <view class="card-time">{{child.createdAt}}</view>
-              </view>
-            </view>
-          </block>
         </block>
       </block>
     </view>
 
     <button class="generate-button" loading="{{generating}}" bindtap="generateCard">
-      生成我的家庭展品卡
+      生成家庭展品卡
     </button>
   </block>
 
   <!-- ===== 状态 3: 已生成展品卡 ===== -->
   <block wx:if="{{card}}">
-    <image class="hero-image" src="{{object.imageOriginal}}" mode="aspectFill" />
+    <image class="hero-image" src="{{object.displayImage || object.imageOriginal}}" mode="aspectFill" />
 
     <view class="card-title">{{card.title}}</view>
     <view class="card-subtitle">{{object.objectNo}} · 家庭展品卡</view>
+    <view wx:if="{{object.uploaderDisplayName}}" class="card-admin-line">藏品管理员：{{object.uploaderDisplayName}}</view>
 
     <view wx:if="{{card.shortIntro}}" class="card-intro">{{card.shortIntro}}</view>
 
@@ -254,9 +332,36 @@ module.exports = { duration: duration }
     <view class="panel" wx:if="{{card.perspectives && card.perspectives.length}}">
       <view class="label">家人记得</view>
       <view wx:for="{{card.perspectives}}" wx:key="memory" class="memory-item">
-        <view class="memory-person">{{item.person}}</view>
+        <view class="memory-person">{{item.displayName || item.person}}</view>
         <view class="body">{{item.memory}}</view>
       </view>
     </view>
   </block>
+
+  <!-- ===== 引用补充浮层 ===== -->
+  <view wx:if="{{quotingPanelOpen}}" class="quote-panel-mask" bindtap="clearQuote" catchtouchmove="noop">
+    <view class="quote-panel" catchtap="noop">
+      <view class="quote-panel-head">
+        <view class="quote-panel-title">引用补充</view>
+        <view class="quote-panel-close" bindtap="clearQuote">×</view>
+      </view>
+      <view wx:if="{{quoting}}" class="quote-panel-quote">
+        <text class="quote-box-author">引用 {{quoting.authorName}}：</text>
+        <text class="quote-box-text">{{quoting.excerpt}}</text>
+      </view>
+      <textarea
+        class="quote-panel-textarea"
+        placeholder="围绕这条记忆写下你的补充"
+        value="{{contentText}}"
+        bindinput="onQuoteInput"
+        auto-focus
+        focus="{{quotingPanelOpen}}"
+        fixed
+      />
+      <view class="quote-panel-actions">
+        <button class="quote-panel-cancel" bindtap="clearQuote">取消</button>
+        <button class="quote-panel-submit" bindtap="submitFromPanel">发布补充</button>
+      </view>
+    </view>
+  </view>
 </view>

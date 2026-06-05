@@ -1,5 +1,24 @@
 const demoStore = require('../../utils/demoStore')
 
+// 把 repairProgress (0~100) 落到 5 档（0/25/50/75/100），对应 5 条 CSS class
+// 已入馆的物件无论数值，都视为 100（清晰）
+function progressBucket(object) {
+  if (object.status === 'completed' && object.finalCard) return 100
+  const p = Math.max(0, Math.min(100, object.repairProgress || 0))
+  if (p >= 88) return 100
+  if (p >= 63) return 75
+  if (p >= 38) return 50
+  if (p >= 13) return 25
+  return 0
+}
+
+function decorate(objects) {
+  return (objects || []).map((item) => ({
+    ...item,
+    progressBucket: progressBucket(item)
+  }))
+}
+
 Page({
   data: {
     totalCount: 0,
@@ -18,7 +37,7 @@ Page({
       this.setData({
         totalCount: allObjects.length,
         repairingCount: repairing.length,
-        recentObjects: allObjects.slice(0, 6)
+        recentObjects: decorate(allObjects.slice(0, 6))
       })
       return
     }
@@ -37,7 +56,7 @@ Page({
       this.setData({
         totalCount: allObjects.length,
         repairingCount: repairing.length,
-        recentObjects: allObjects.slice(0, 6)
+        recentObjects: decorate(allObjects.slice(0, 6))
       })
     })
   },

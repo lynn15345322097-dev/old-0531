@@ -5,11 +5,10 @@ Page({
     mode: 'choose',    // 'choose' | 'create' | 'join'
     familyName: '',
     userName: '',
-    role: 'elder',
     relation: '',
     inviteCode: '',
     loading: false,
-    relations: ['奶奶', '爷爷', '外婆', '外公', '其他']
+    relations: ['爷爷', '奶奶', '爸爸', '妈妈', '孙女', '孙子', '其他']
   },
 
   startCreate() {
@@ -36,10 +35,6 @@ Page({
     this.setData({ inviteCode: event.detail.value })
   },
 
-  pickRole(event) {
-    this.setData({ role: event.currentTarget.dataset.role })
-  },
-
   onRelation(event) {
     this.setData({ relation: this.data.relations[event.detail.value] })
   },
@@ -53,7 +48,7 @@ Page({
       return
     }
     if (!userName) {
-      wx.showToast({ title: '请输入我的称呼', icon: 'none' })
+      wx.showToast({ title: '请输入名字或昵称', icon: 'none' })
       return
     }
 
@@ -64,7 +59,6 @@ Page({
       data: {
         familyName,
         userName,
-        role: this.data.role,
         relation: this.data.relation
       },
       success: (res) => {
@@ -102,7 +96,7 @@ Page({
       return
     }
     if (!userName) {
-      wx.showToast({ title: '请输入我的称呼', icon: 'none' })
+      wx.showToast({ title: '请输入名字或昵称', icon: 'none' })
       return
     }
 
@@ -113,7 +107,6 @@ Page({
       data: {
         inviteCode,
         userName,
-        role: this.data.role,
         relation: this.data.relation
       },
       success: (res) => {

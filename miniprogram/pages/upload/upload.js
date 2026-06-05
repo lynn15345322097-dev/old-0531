@@ -25,9 +25,19 @@ Page({
     this.setData({ uploading: true })
 
     if (demoStore.DEMO_MODE) {
-      const object = demoStore.createObject(this.data.tempImage)
-      this.setData({ uploading: false })
-      wx.redirectTo({ url: `/pages/object/object?objectId=${object.objectId}` })
+      try {
+        const fs = wx.getFileSystemManager()
+        const ext = this.data.tempImage.split('.').pop() || 'jpg'
+        const savedFilePath = `${wx.env.USER_DATA_PATH}/object_${Date.now()}.${ext}`
+        fs.saveFileSync(this.data.tempImage, savedFilePath)
+        const object = demoStore.createObject(savedFilePath)
+        this.setData({ uploading: false })
+        wx.redirectTo({ url: `/pages/object/object?objectId=${object.objectId}` })
+      } catch (err) {
+        console.error('[demo:saveObjectImage] failed', err)
+        this.setData({ uploading: false })
+        wx.showToast({ title: '图片保存失败，请重试', icon: 'none' })
+      }
       return
     }
 

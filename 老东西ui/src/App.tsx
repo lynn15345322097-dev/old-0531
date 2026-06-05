@@ -62,8 +62,8 @@ export default function App() {
     setCurrentPageParams(params);
   };
 
-  // Helper: Reset database to initial pristine setup for easy re-runs
-  const resetDemoDatabase = () => {
+  // Helper: Reset local preview data to the initial setup.
+  const resetPreviewDatabase = () => {
     setItems(INITIAL_MUSEUM_ITEMS);
     setFamilyInfo(DEFAULT_FAMILY_INFO);
     setCurrentPage('home');
@@ -74,7 +74,7 @@ export default function App() {
   const getHeaderTitle = () => {
     switch (currentPage) {
       case 'home':
-        return '老东西';
+        return '家庭博物馆';
       case 'museum':
         return '我的家庭博物馆';
       case 'mine':
@@ -88,7 +88,7 @@ export default function App() {
         return item ? item.title : '藏品档案';
       }
       default:
-        return '老东西';
+        return '家庭博物馆';
     }
   };
 
@@ -110,31 +110,31 @@ export default function App() {
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative z-10">
         
         {/* ================================================================= */}
-        {/* LEFT PANEL: PROJECT INTRODUCTION & INTERACTIVE DEMO CONTROLLER  */}
+        {/* LEFT PANEL: PROJECT INTRODUCTION & INTERACTIVE PREVIEW CONTROLLER */}
         {/* ================================================================= */}
         <div className="md:col-span-5 lg:col-span-5 flex flex-col space-y-6">
           
           {/* Cover & Brand card */}
           <div className="bg-white border border-[#eae3d5] p-6 rounded-2xl shadow-xs relative overflow-hidden">
             <div className="absolute right-4 top-4 bg-[#fbf4ea] text-brand-bronze text-xs font-serif-sc font-medium px-2.5 py-1 rounded-sm border border-[#f0ebd5]">
-              MVP 演示系统
+              产品预览系统
             </div>
             
             <p className="text-sm font-mono tracking-widest text-[#aa7d54] uppercase font-bold">Product Showcase</p>
             <h1 className="text-3xl font-serif-sc font-extrabold text-[#1f1a17] tracking-tight mt-1.5 flex items-baseline gap-1.5">
-              老东西
+              家庭博物馆
               <span className="text-sm font-normal text-brand-bluegray font-sans select-none">— 那些没有被丢掉的东西</span>
             </h1>
             
             <p className="text-xs text-[#6e6051] mt-3 leading-relaxed font-serif-sc border-l-2 border-[#aa7d54] pl-3">
-              这是一个帮助家庭成员一起修复旧物记忆、重叙三代情谊的微信小程序。
-              长辈指尖上的斑驳老记忆，不该随破铜烂铁一同积灰。
+              这是一个帮助家庭成员一起修复旧物记忆、共同补全家庭故事的微信小程序。
+              每个家庭成员都可以上传、补充、提问和生成展品卡。
             </p>
 
             <div className="mt-5 pt-4 border-t border-[#f5efe1] flex flex-wrap gap-2 text-[11px] text-[#63574b]">
               <span className="bg-[#fcfbf9] border border-[#e2dcd0] px-2 py-0.5 rounded-sm">🎨 极简主义家庭博物馆</span>
               <span className="bg-[#fcfbf9] border border-[#e2dcd0] px-2 py-0.5 rounded-sm">📜 记忆重组接龙</span>
-              <span className="bg-[#fcfbf9] border border-[#e2dcd0] px-2 py-0.5 rounded-sm">🎙️ 长辈原声录制</span>
+              <span className="bg-[#fcfbf9] border border-[#e2dcd0] px-2 py-0.5 rounded-sm">🎙️ 家庭成员语音补充</span>
             </div>
           </div>
 
@@ -143,20 +143,20 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-[#faf7f2] pb-2">
               <span className="text-xs font-bold text-brand-dark flex items-center gap-1.5 uppercase font-serif-sc">
                 <Sliders className="w-3.5 h-3.5 text-brand-bronze" />
-                Demo 快速进入通道 (Deep Links)
+                产品流程入口
               </span>
               <button 
-                onClick={resetDemoDatabase}
+                onClick={resetPreviewDatabase}
                 className="text-[10px] text-brand-bronze hover:underline flex items-center gap-1 font-mono font-bold"
                 title="重置数据库到全新出厂状态"
               >
                 <RefreshCw className="w-3 h-3" />
-                重置测试数据
+                重置预览数据
               </button>
             </div>
 
             <p className="text-[11px] text-[#8c8071] leading-relaxed">
-              为了完美测试小程序 MVP 中规定的 <strong>6 个页面</strong> 与 <strong>藏品详情页 3 种状态</strong>，您可以通过此面板一键热切换模拟器画面：
+              这个面板用于快速查看小程序的 <strong>6 个页面</strong> 与 <strong>藏品详情页 3 种状态</strong>，方便检查完整产品流程：
             </p>
 
             <div className="space-y-2.5">
@@ -213,7 +213,7 @@ export default function App() {
                   {/* Shortcut State A */}
                   <button 
                     onClick={() => {
-                      // Force No.001 back into Restoring state for state A demo
+                      // Force No.001 back into restoring state for state A preview.
                       const restoredNo001: MuseumItem & any = items.find(i => i.id === 'item-1')!;
                       if (restoredNo001 && restoredNo001.state !== 'restoring') {
                         setItems(items.map(i => i.id === 'item-1' ? { ...i, state: 'restoring', restoration: 20 } : i));
@@ -232,7 +232,7 @@ export default function App() {
                   {/* Shortcut State B */}
                   <button 
                     onClick={() => {
-                      // Force No.002 to be Pending Card for state B demo
+                      // Force No.002 to be pending card for state B preview.
                       const currentNo002 = items.find(i => i.id === 'item-2')!;
                       if (currentNo002 && currentNo002.state !== 'pending_card') {
                         setItems(items.map(i => i.id === 'item-2' ? { ...i, state: 'pending_card', restoration: 100 } : i));
@@ -251,7 +251,7 @@ export default function App() {
                   {/* Shortcut State C */}
                   <button 
                     onClick={() => {
-                      // Force No.003 to be fully exhibited for state C demo
+                      // Force No.003 to be fully exhibited for state C preview.
                       handleNavigate('detail', { itemId: 'item-3' });
                     }} 
                     className={`w-full text-left text-xs py-2 px-3 border rounded-lg flex items-center justify-between transition-all ${currentPage === 'detail' && items.find(i => i.id === currentPageParams?.itemId)?.state === 'exhibited' ? 'bg-brand-dark text-brand-beige border-brand-dark font-semibold' : 'bg-brand-beige/30 hover:bg-[#eae3d5]/30'}`}
@@ -281,7 +281,7 @@ export default function App() {
                 <strong>配色选用：</strong>以温暖安宁、富有年代感的 <span className="text-[#a49987] font-semibold">米白 (#faf7f2)</span> 和 <span className="text-[#6c6152] font-semibold">暖灰</span> 为底色，烘托家族博物馆的名签厚重感。搭配古朴的 <span className="text-brand-bronze font-bold">铜色 (#aa7d54)</span> 以及温和的 <span className="text-brand-bluegray font-bold">蓝灰</span> 作为关键节点强调，去糟粕、凝厚重。
               </p>
               <p>
-                <strong>高辨识度控件：</strong>针对高龄长辈优化，按钮目标大、对白文字清明。排版回归古典纸质文献与宣纸标签比例，让长者和后代在摩挲老故事时倍感沉淀。
+                <strong>高辨识度控件：</strong>面向全家共同使用优化，按钮目标大、对白文字清明。排版回归古典纸质文献与宣纸标签比例，让不同代际的家庭成员都能顺畅补充记忆。
               </p>
             </div>
             
@@ -359,7 +359,7 @@ export default function App() {
                         <span>返回</span>
                       </button>
                     ) : (
-                      <span className="text-[#a49987] text-xs font-bold tracking-widest font-serif-sc">老东西</span>
+                      <span className="text-[#a49987] text-xs font-bold tracking-widest font-serif-sc">家庭博物馆</span>
                     )}
                   </div>
 

@@ -22,17 +22,16 @@
   userId,
   openid,
   familyId,           // 所属家庭，null 表示未绑定
-  name,               // 称呼
-  role: "elder" | "family",
-  relation: "爷爷" | "奶奶" | "爸爸" | "妈妈" | "孙女" | "其他",
+  name,               // 名字或昵称，如"张小丽""胡英俊""图图"
+  relation: "爷爷" | "奶奶" | "爸爸" | "妈妈" | "孙子" | "孙女" | "其他",
   createdAt,
   updatedAt
 }
 ```
 
-role 数据库值 `elder`/`family`，前端显示 `老东西`/`小东西`。
+当前版本一个用户只属于一个家庭。以后如需多家庭，再加 `family_members` 关联表。
 
-MVP 一个用户只属于一个家庭。以后如需多家庭，再加 `family_members` 关联表。
+前端统一显示家庭成员为 `relation：name`，如 `妈妈：张小丽`。当旧数据里 `name` 和 `relation` 相同或缺失时，降级显示 `relation` 或 `name`。
 
 ## objects 藏品表
 
@@ -42,7 +41,9 @@ MVP 一个用户只属于一个家庭。以后如需多家庭，再加 `family_m
   objectId,
   objectNo,
   familyId,
-  uploaderId,
+  uploaderOpenid,
+  uploaderName,
+  uploaderRelation,
   title,
   displayTitle,
   imageOriginal,
@@ -62,7 +63,7 @@ MVP 一个用户只属于一个家庭。以后如需多家庭，再加 `family_m
 }
 ```
 
-MVP 里 `imageProcessed` 可以先等于 `imageOriginal`。黑白模糊由前端根据 `repairProgress` 动态生成视觉效果。
+当前版本里 `imageProcessed` 可以先等于 `imageOriginal`。黑白模糊由前端根据 `repairProgress` 动态生成视觉效果。
 
 `finalCard` 展品卡结构：
 
@@ -71,10 +72,10 @@ MVP 里 `imageProcessed` 可以先等于 `imageOriginal`。黑白模糊由前端
   title,
   keywords,
   shortIntro,
-  description,          // 物件第一人称叙事：由物件自己讲述，不使用第三人称或老人第一人称
+  description,          // 物件第一人称叙事：由物件自己讲述，不使用第三人称或任何家庭成员第一人称
   representativeQuote,  // 来自 memoryItems.contentText 的家人原话
   perspectives: [       // “家人记得”模块，保留真实人物视角
-    { person, memory }
+    { person, relation, memory }
   ],
   museumTags
 }
@@ -92,22 +93,29 @@ MVP 里 `imageProcessed` 可以先等于 `imageOriginal`。黑白模糊由前端
   _id,
   memoryId,            // 同 _id
   objectId,
-  userId,
+  familyId,
+  authorOpenid,
   authorName,
-  authorRole,          // "elder" | "family"
-  parentId,            // null 表示根条目，否则指向另一条 memoryId
-  targetRole,          // null | "elder" | "family"，消息期望谁回应
+  authorRelation,
+  parentId,            // 引用补充时指向被引用 memoryId；UI 按根记忆同框分组
+  quotedAuthorName,    // 被引用人显示名，例："爸爸：胡英俊"
+  quotedExcerpt,       // 被引用内容前 30 字摘要
   kind: "question" | "memory" | "answer",
   source: "text" | "audio",
   contentText,
   audioUrl,
   audioDuration,       // 秒，非音频为 0
-  repairDelta,         // 本条新发现的线索类型数
-  repairReason,        // 修复反馈文案，如"发现新线索：爷爷买的、搬家"
-  analysis: {          // 线索分析结果
+  repairPercent,       // 由发起者（uploader）评定，∈ {0,10,20,30,50}；null 表示未评定
+  reviewedByOpenid,    // 评定人 openid（应等于 object.uploaderOpenid）
+  reviewedAt,          // 评定时间
+  repairDelta,         // 兼容字段：保留 0；进度不再由系统自动算
+  repairReason,        // 修复反馈文案，新版固定为"已保存，等待发起者评定贡献度"
+  analysis: {          // 线索分析结果（仅用于生成展品卡，不再用于算进度）
     clues: [{ type: "origin", label: "爷爷买的", evidence: "你爷爷以前买的" }],
     analyzer: "mock-v1"
   },
   createdAt
 }
 ```
+
+`object.repairProgress` 由 `setMemoryRepair` 云函数把当前 object 下所有记忆的 `repairPercent` 累加后写回（封顶 100）。`status` 在 progress 到 100 时转为 `completed`，但**不自动生成展品卡** —— 用户在详情页手动点"生成家庭展品卡"才会调 `generateCard`。

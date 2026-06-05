@@ -414,20 +414,16 @@ export function PageMine({ familyInfo, setFamilyInfo, onNavigate }: PageProps) {
             <span className="text-sm text-[#7a6b57] font-serif-sc font-semibold">{familyInfo.myAlias}</span>
           </div>
 
-          {/* Field: My Role */}
+          {/* Field: Member Identity */}
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-brand-gray flex items-center justify-center text-[#556975]">
                 <Award className="w-4 h-4" />
               </div>
-              <span className="text-sm font-medium text-brand-dark">我的角色</span>
+              <span className="text-sm font-medium text-brand-dark">成员身份</span>
             </div>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-serif-sc border font-medium ${
-              familyInfo.myRole === '老东西' 
-                ? 'bg-[#fbf4eb] text-brand-bronze border-[#eadeca]' 
-                : 'bg-[#eef4f8] text-[#3c5665] border-[#cbdfe9]'
-            }`}>
-              {familyInfo.myRole === '老东西' ? '老东西 (老人)' : '小东西 (家人)'}
+            <span className="text-xs px-2.5 py-1 rounded-full font-serif-sc border font-medium bg-[#eef4f8] text-[#3c5665] border-[#cbdfe9]">
+              {familyInfo.myRole}
             </span>
           </div>
 
@@ -486,7 +482,7 @@ export function PageMine({ familyInfo, setFamilyInfo, onNavigate }: PageProps) {
         </div>
       </div>
 
-      {/* Reset options for demo */}
+      {/* Reset options for local preview */}
       <div className="px-5 pt-4">
         <button 
           onClick={() => onNavigate('binding')}
@@ -508,7 +504,7 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
   // Local form inputs
   const [formFamilyName, setFormFamilyName] = useState('老陈家的传家屋');
   const [formMyAlias, setFormMyAlias] = useState('陈阿敏');
-  const [formMyRole, setFormMyRole] = useState<'老东西' | '小东西'>('小东西');
+  const [formMyRole] = useState<'家庭成员'>('家庭成员');
   const [formRelation, setFormRelation] = useState('孙女');
   const [formInviteCode, setFormInviteCode] = useState('');
 
@@ -526,7 +522,7 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
 
     setFamilyInfo({
       familyName: finalFamilyName || '未命名家庭博物馆',
-      myAlias: formMyAlias || '无名小东西',
+      myAlias: formMyAlias || '无名家庭成员',
       myRole: formMyRole,
       familyRelation: formRelation,
       invitationCode: finalCode
@@ -541,10 +537,10 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
       {/* Header and greeting */}
       <div className="text-center space-y-2 mt-4">
         <h1 className="text-xl font-serif-sc font-medium text-brand-dark tracking-wide leading-tight">
-          「Hello！ 一起成为老东西吧～」
+          「Hello！ 一起加入家庭博物馆吧」
         </h1>
         <p className="text-xs text-[#8c8071] max-w-[280px] mx-auto leading-relaxed">
-          这里是存储岁月、交换记忆的暖屋。我们可以邀请长辈，携手揭开老古董背后的深藏记忆。
+          这里是存储岁月、交换记忆的暖屋。每位家庭成员都可以上传旧物、补充记忆、回应问题。
         </p>
       </div>
 
@@ -553,7 +549,6 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
         <button 
           onClick={() => {
             setActiveTab('create');
-            setFormMyRole('小东西');
           }}
           className={`flex-1 text-xs py-2.5 rounded-lg transition-all font-serif-sc ${activeTab === 'create' ? 'bg-brand-dark text-brand-beige font-semibold shadow-xs' : 'text-brand-dark/80 font-medium'}`}
         >
@@ -562,7 +557,6 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
         <button 
           onClick={() => {
             setActiveTab('join');
-            setFormMyRole('老东西');
           }}
           className={`flex-1 text-xs py-2.5 rounded-lg transition-all font-serif-sc ${activeTab === 'join' ? 'bg-brand-dark text-brand-beige font-semibold shadow-xs' : 'text-brand-dark/80 font-medium'}`}
         >
@@ -614,36 +608,11 @@ export function PageBinding({ familyInfo, setFamilyInfo, onNavigate }: PageProps
           />
         </div>
 
-        {/* My role selection - styled clearly */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold text-brand-dark/80 block font-serif-sc uppercase tracking-wider">我的家庭角色</label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className={`border rounded-lg p-2.5 flex items-center justify-between cursor-pointer transition-all ${formMyRole === '老东西' ? 'bg-[#fcf5eb] border-brand-bronze text-brand-bronze' : 'border-[#ebd6d5] hover:bg-brand-gray/30'}`}>
-              <div className="text-left">
-                <span className="text-xs font-semibold block font-serif-sc">老东西</span>
-                <span className="text-[9px] text-[#807060] opacity-80 block font-sans">家里的长辈/老人</span>
-              </div>
-              <input 
-                type="radio" 
-                name="myRole" 
-                checked={formMyRole === '老东西'} 
-                onChange={() => setFormMyRole('老东西')}
-                className="accent-brand-bronze" 
-              />
-            </label>
-            <label className={`border rounded-lg p-2.5 flex items-center justify-between cursor-pointer transition-all ${formMyRole === '小东西' ? 'bg-[#ebf3fc] border-brand-bluegray text-brand-bluegray' : 'border-[#e6ded5] hover:bg-brand-gray/30'}`}>
-              <div className="text-left">
-                <span className="text-xs font-semibold block font-serif-sc">小东西</span>
-                <span className="text-[9px] text-[#607080] opacity-80 block font-sans">晚辈/家人/记录人</span>
-              </div>
-              <input 
-                type="radio" 
-                name="myRole" 
-                checked={formMyRole === '小东西'} 
-                onChange={() => setFormMyRole('小东西')}
-                className="accent-brand-bluegray" 
-              />
-            </label>
+          <label className="text-[11px] font-semibold text-brand-dark/80 block font-serif-sc uppercase tracking-wider">成员身份</label>
+          <div className="border rounded-lg p-2.5 bg-[#eef4f8] border-brand-bluegray text-brand-bluegray">
+            <span className="text-xs font-semibold block font-serif-sc">家庭成员共同使用</span>
+            <span className="text-[9px] text-[#607080] opacity-80 block font-sans">不区分单独端口，按姓名和关系记录贡献来源</span>
           </div>
         </div>
 
@@ -713,13 +682,14 @@ export function PageUpload({ onNavigate, items, setItems }: PageProps) {
       relationPerson: personInCharge || `${preset.creator} 亲藏`,
       keywords: [preset.creator, '经典老物件', '家族回忆'],
       description: `根据我们寻找的回忆片段，这是一件由${personInCharge || preset.creator}在早年使用的${preset.title}。它保留了我们过去生活的重要烙印。`,
-      genealogy: `早年被${personInCharge}添置并由三代人共同使用 -> 整理家庭杂物时再次被发掘 -> ${new Date().getFullYear()}年上传至老东西博物馆备份。`,
+      genealogy: `早年被${personInCharge}添置并由三代人共同使用 -> 整理家庭杂物时再次被发掘 -> ${new Date().getFullYear()}年上传至家庭博物馆备份。`,
       timeline: [
         {
           id: `chat-custom-1`,
           type: 'question',
           author: personInCharge.includes(' ') ? `后辈 (${personInCharge.split(' ')[1]})` : '子辈',
-          role: 'helper',
+          role: 'member',
+          authorRelation: '家庭成员',
           content: `这个“${newTitle}”真是太怀旧啦，我想知道当年它是怎么来的？`,
           timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16)
         },
@@ -727,7 +697,8 @@ export function PageUpload({ onNavigate, items, setItems }: PageProps) {
           id: `chat-custom-2`,
           type: 'memory',
           author: '记录者',
-          role: 'helper',
+          role: 'member',
+          authorRelation: '家庭成员',
           content: `记忆里这个老古董一直藏在壁架抽屉深处，虽然有些陈旧剥落，但拿在手里沉甸甸的。`,
           timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16)
         }
@@ -854,14 +825,14 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
   const isGrayscale = !isExhibited; // Grayscale true for restoring and pending card
   const blurVal = isExhibited ? 0 : Math.max(0, (100 - item.restoration) / 20);
 
-  // Simulated Voice Answers database to make "老人语音回答" exceptionally detailed
-  const seniorAnswers = [
+  // Simulated family voice answers database
+  const voiceAnswers = [
     "这个搪瓷缸子，是我当年在公社抢险修堤拔了头筹得的先进劳模茶缸，全公社就三个！我用了差不多四十年，哪怕后来你妈说给我买不锈钢保温杯，我也不舍得换。这个把手磨光光的，就是日子留下的包浆咧~",
     "那是一九八三年的秋天，你妈准备结婚。家里条件普通，我和你爷爷到处打零工，不吃不喝攒了三个多月，才托百货大楼的远亲抢到了一台蝴蝶缝纫机。那天用木板车拉回家时，你奶奶高兴得哭了一整天，逢人就夸我们蝴蝶牌子的针线密，承载的都是妈妈那份喜气...",
     "这杆铜杆的老提秤是民国那年你太爷爷做酱油生意时留下的，秤花是黄铜打的，杆子是用整根红木削了三天三夜，用了大半辈子。现在虽然大家买菜都用电子显示数字秤了，可看见这秤砣，我就能想起当年跟着大车跑码头、拉担子的热乎劲儿。"
   ];
 
-  const addTimelineAndRestoration = (type: 'question' | 'memory' | 'senior_voice', contentText: string, customAuthor?: string, speakSeconds = 12) => {
+  const addTimelineAndRestoration = (type: 'question' | 'memory' | 'voice', contentText: string, customAuthor?: string, speakSeconds = 12) => {
     const nextRestoration = Math.min(100, item.restoration + 25);
     let finalState = item.state;
     let finalTitle = item.title;
@@ -875,11 +846,12 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
     const newRecord: ChatRecord = {
       id: `chat-${Date.now()}`,
       type,
-      author: customAuthor || (type === 'senior_voice' ? `${item.relationPerson.split(' ')[0]} 爷爷` : familyInfo.myAlias),
-      role: type === 'senior_voice' ? 'senior' : 'helper',
+      author: customAuthor || familyInfo.myAlias,
+      role: 'member',
+      authorRelation: customAuthor || familyInfo.familyRelation,
       content: contentText,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      ...(type === 'senior_voice' ? { durationSec: speakSeconds } : {})
+      ...(type === 'voice' ? { durationSec: speakSeconds } : {})
     };
 
     const updatedItem: MuseumItem = {
@@ -905,8 +877,8 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
     setInputText('');
   };
 
-  // Simulation of "老人语音回答". In Demo, it simulates local microphone capture and grandparents audio script addition
-  const handleSimulateSeniorVoice = () => {
+  // Simulation of a family member voice contribution.
+  const handleSimulateVoice = () => {
     setIsRecording(true);
     let seconds = 0;
     recordInterval.current = setInterval(() => {
@@ -916,9 +888,8 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
         clearInterval(recordInterval.current);
         setIsRecording(false);
         setTimerText('0:00');
-        // Retrieve a beautiful script from our grandparents answer presets
-        const randAns = seniorAnswers[Math.floor(Math.random() * seniorAnswers.length)];
-        addTimelineAndRestoration('senior_voice', randAns, item.relationPerson, 15);
+        const randAns = voiceAnswers[Math.floor(Math.random() * voiceAnswers.length)];
+        addTimelineAndRestoration('voice', randAns, item.relationPerson, 15);
       }
     }, 1000);
   };
@@ -1017,16 +988,14 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
             <h3 className="font-serif-sc text-xs font-semibold text-brand-bronze uppercase tracking-widest border-b border-[#e6e1d5] pb-1.5">— 记忆接龙接力链 —</h3>
             
             {item.timeline.map((record) => {
-              const isVoice = record.type === 'senior_voice';
+              const isVoice = record.type === 'voice';
               const isPlaying = playingVoiceId === record.id;
               
               return (
                 <div 
                   key={record.id}
                   className={`flex flex-col space-y-1 rounded-xl p-3 border leading-relaxed text-xs max-w-[90%] font-serif-sc ${
-                    record.role === 'senior'
-                      ? 'bg-[#fdfbf6] border-[#dfd2be] mr-auto'
-                      : 'bg-[#faf4ea] border-[#e6dcc7] ml-auto text-right'
+                    'bg-[#faf4ea] border-[#e6dcc7] ml-auto text-right'
                   }`}
                 >
                   <div className="flex items-center gap-1.5 text-[10px] text-[#807567] opacity-85">
@@ -1038,7 +1007,7 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
                       record.type === 'memory' ? 'bg-[#faf4eb] text-brand-bronze' : 'bg-[#eefcfc] text-[#2c787a]'
                     }`}>
                       {record.type === 'question' ? '提问' : 
-                       record.type === 'memory' ? '记忆补充' : '老人语音回答'}
+                       record.type === 'memory' ? '记忆补充' : '成员语音补充'}
                     </span>
                   </div>
 
@@ -1052,7 +1021,7 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
                         }`}
                       >
                         <Volume2 className={`w-4 h-4 text-brand-bronze ${isPlaying ? 'animate-bounce' : ''}`} />
-                        <span className="text-[11px] font-mono font-bold text-brand-dark">{record.durationSec} 秒爷爷回复</span>
+                        <span className="text-[11px] font-mono font-bold text-brand-dark">{record.durationSec} 秒语音补充</span>
                         {isPlaying && (
                           <span className="flex gap-0.5 items-center">
                             <span className="w-1 h-3.5 bg-brand-bronze rounded-full animate-bar-bounce-1"></span>
@@ -1066,7 +1035,7 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
                       </p>
                     </div>
                   ) : (
-                    <p className={`text-brand-dark leading-relaxed font-medium pt-0.5 ${record.role === 'senior' ? 'text-left' : 'text-right'}`}>
+                    <p className="text-brand-dark leading-relaxed font-medium pt-0.5 text-right">
                       {record.content}
                     </p>
                   )}
@@ -1085,8 +1054,8 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
                   <div className="flex items-center gap-2 bg-[#aa7d54] p-3 rounded-full animate-ping-slow">
                     <Mic className="w-7 h-7 text-white" />
                   </div>
-                  <p className="text-sm font-semibold tracking-wide mt-3">【按住老人语音回答中 ...】</p>
-                  <p className="text-xs text-brand-gray/80 mt-1">模拟长辈正在手按麦克风述说那段被尘封的岁月 ({timerText})</p>
+                  <p className="text-sm font-semibold tracking-wide mt-3">【按住成员语音补充中 ...】</p>
+                  <p className="text-xs text-brand-gray/80 mt-1">模拟家庭成员正在手按麦克风补充记忆 ({timerText})</p>
                 </div>
               )}
 
@@ -1123,20 +1092,20 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
                   补充记忆
                 </button>
 
-                {/* Tactile micro button for elderly simulation response */}
+                {/* Tactile micro button for voice contribution simulation */}
                 <button 
                   id="btn-trigger-old-mic"
-                  onMouseDown={handleSimulateSeniorVoice}
-                  onTouchStart={handleSimulateSeniorVoice}
+                  onMouseDown={handleSimulateVoice}
+                  onTouchStart={handleSimulateVoice}
                   className="bg-brand-dark border border-[#3e352b] text-brand-beige text-xs font-bold py-2.5 rounded-lg active:scale-[0.97] transition-all hover:bg-opacity-95 font-serif-sc flex items-center justify-center gap-1"
-                  title="点击模拟老人按住并录入录音"
+                  title="点击模拟家庭成员按住并录入录音"
                 >
                   <Mic className="w-3.5 h-3.5 text-brand-bronze shrink-0 animate-pulse" />
-                  老人语音
+                  成员语音
                 </button>
               </div>
               <p className="text-[10px] text-center text-[#9c8e7e] font-serif-sc tracking-wide pt-0.5">
-                💡 手势轻触“老人语音”启动四秒微录仿真输入，将自动生成并拼合长辈声音。
+                💡 手势轻触“成员语音”启动四秒微录仿真输入，将自动生成一条家庭成员语音补充。
               </p>
             </div>
           )}
@@ -1159,7 +1128,7 @@ export function PageDetail({ items, setItems, familyInfo, currentPageParams, onN
             {/* Micro museum credits line header */}
             <div className="text-center border-b border-[#ebd7cf] pb-2.5 relative">
               <span className="text-[10px] uppercase font-bold text-brand-bronze tracking-widest">
-                — 老东西家藏陈物系列 · 档案签 —
+                — 家庭博物馆家藏陈物系列 · 档案签 —
               </span>
               <p className="text-[9px] text-[#a19688] font-sans uppercase tracking-[0.2em] mt-0.5">LDX Collection No.{item.no}</p>
             </div>

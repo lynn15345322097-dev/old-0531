@@ -4,7 +4,10 @@
       "WebFetch(domain:aistudio.google.com)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m '初始化：老东西 家庭博物馆 MVP *)"
+      "Bash(git commit -m '初始化：老东西 家庭博物馆 MVP *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git show *)"
     ]
   }
 }

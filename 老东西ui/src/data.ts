@@ -8,7 +8,7 @@ import { MuseumItem } from './types';
 export const DEFAULT_FAMILY_INFO = {
   familyName: "老陈家的传家屋",
   myAlias: "小陈 (陈阿敏)",
-  myRole: "小东西" as const, // 小东西 (家人) / 老东西 (老人)
+  myRole: "家庭成员" as const,
   familyRelation: "孙女",
   invitationCode: "LDX-8392-ZN"
 };
@@ -31,7 +31,8 @@ export const INITIAL_MUSEUM_ITEMS: MuseumItem[] = [
         id: "chat-1-1",
         type: "question",
         author: "孙女 阿敏",
-        role: "helper",
+        role: "member",
+        authorRelation: "孙女",
         content: "外公，这个白瓷茶杯边上怎么破了一个小口口呀？看起来很有些年头了。",
         timestamp: "2026-05-30 09:30"
       },
@@ -39,7 +40,8 @@ export const INITIAL_MUSEUM_ITEMS: MuseumItem[] = [
         id: "chat-1-2",
         type: "memory",
         author: "女婿 国强",
-        role: "helper",
+        role: "member",
+        authorRelation: "爸爸",
         content: "对啊爸，我1998年初次登门拜访的时候，就看你天天端着这杯子。上面的茉莉花茶垢厚厚的一层，你都宝贝得不得了，不让我们帮你拿刷子洗。",
         timestamp: "2026-05-30 10:15"
       }
@@ -62,7 +64,8 @@ export const INITIAL_MUSEUM_ITEMS: MuseumItem[] = [
         id: "chat-2-1",
         type: "question",
         author: "孙女 阿敏",
-        role: "helper",
+        role: "member",
+        authorRelation: "孙女",
         content: "奶奶，这个绿色的大铁钟是从哪里买回来的呀？小时候一去您家，满屋子都是它‘嘀嗒’的声音，晚上睡不着，听着特别安心。",
         timestamp: "2026-05-28 14:00"
       },
@@ -70,15 +73,17 @@ export const INITIAL_MUSEUM_ITEMS: MuseumItem[] = [
         id: "chat-2-2",
         type: "memory",
         author: "爷爷 陈爱国",
-        role: "senior",
+        role: "member",
+        authorRelation: "爷爷",
         content: "这老钟可是当年拼了老命给你奶奶准备的新婚礼物。当年要买一架上海牌的绿漆机械钟，不仅要攒一年半的工业券，还要大清早去百货大楼站排呢！",
         timestamp: "2026-05-28 15:45"
       },
       {
         id: "chat-2-3",
-        type: "senior_voice",
+        type: "voice",
         author: "奶奶 张素芬",
-        role: "senior",
+        role: "member",
+        authorRelation: "奶奶",
         content: "当年啊，这台挂钟挂在我们老房子堂屋最中间。每次你爸爸调皮，或者你们在堂屋里追逐，我一听老挂钟的时针在整点打鸣，就知道又过了一小时。虽然早些年弦断了，但是摆在客厅里，只要看着它，全家人的日子就觉得是在踏踏实实往前走的。",
         timestamp: "2026-05-28 16:12",
         durationSec: 28
@@ -102,15 +107,17 @@ export const INITIAL_MUSEUM_ITEMS: MuseumItem[] = [
         id: "chat-3-1",
         type: "question",
         author: "女儿 阿敏",
-        role: "helper",
+        role: "member",
+        authorRelation: "女儿",
         content: "妈，我记得小时候我那件红领巾演出裙就是在这个旧木桌上做出来的吧？大铁轮子转起来特别好玩。",
         timestamp: "2026-05-20 18:22"
       },
       {
         id: "chat-3-2",
-        type: "senior_voice",
+        type: "voice",
         author: "妈妈 陈慧梅",
-        role: "senior",
+        role: "member",
+        authorRelation: "妈妈",
         content: "是啊，那裙子还是红洋布，那年布票好不容易才凑够，前脚买回来，当晚我就在上面踩了一夜，‘哒哒哒哒’还怕吵醒你。你转那大轮子我还敲过你的小手丫，哈哈。现在这缝纫机皮带早坏了，可我天天坐在它面前当梳妆台，心里就踏实。",
         timestamp: "2026-05-20 19:10",
         durationSec: 32

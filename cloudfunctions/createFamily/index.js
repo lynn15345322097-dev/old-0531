@@ -18,7 +18,6 @@ exports.main = async (event) => {
   }
 
   const userName = event.userName || '家庭成员'
-  const role = event.role || 'family'
   const relation = event.relation || '其他'
 
   // 生成唯一邀请码
@@ -50,7 +49,6 @@ exports.main = async (event) => {
     openid,
     familyId,
     name: userName,
-    role,
     relation,
     updatedAt: now
   }

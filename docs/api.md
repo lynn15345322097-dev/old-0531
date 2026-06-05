@@ -27,7 +27,6 @@
 {
   familyName,       // 家庭名称
   userName,         // 用户称呼
-  role: "elder" | "family",
   relation: "爷爷" | "奶奶" | "爸爸" | "妈妈" | "孙女" | "其他"
 }
 ```
@@ -51,7 +50,6 @@
 {
   inviteCode,       // 6 位数字邀请码
   userName,         // 用户称呼
-  role: "elder" | "family",
   relation: "爷爷" | "奶奶" | "爸爸" | "妈妈" | "孙女" | "其他"
 }
 ```
@@ -92,10 +90,12 @@
 ```js
 {
   objectId,
-  type: "question" | "memory" | "answer",
+  kind: "question" | "memory" | "answer",
   source: "text" | "audio",
   contentText,
-  audioUrl
+  audioUrl,
+  audioDuration,
+  parentId
 }
 ```
 
@@ -103,9 +103,33 @@
 
 ```js
 {
-  contributionId,
+  memoryItem,
+  repairDelta,
   repairProgress,
-  status
+  repairReason,
+  newClues,
+  clueCount,
+  clueTarget,
+  memoryClues
+}
+```
+
+## getObjectDetail
+
+入参：
+
+```js
+{
+  objectId
+}
+```
+
+出参：
+
+```js
+{
+  object,
+  memoryItems
 }
 ```
 
@@ -141,6 +165,7 @@
 
 ```js
 {
-  objects
+  objects,
+  participantCounts
 }
 ```

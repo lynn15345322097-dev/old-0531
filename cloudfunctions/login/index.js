@@ -40,7 +40,6 @@ exports.main = async () => {
     openid,
     familyId: null,
     name: '',
-    role: 'family',
     relation: '',
     createdAt: now,
     updatedAt: now

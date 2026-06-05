@@ -19,6 +19,33 @@
   color: #5b6d42;
 }
 
+.object-admin-row {
+  margin-top: 14rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.object-admin-name {
+  font-size: 24rpx;
+  color: #7a5a2c;
+  font-weight: 700;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+  background: #efe3cc;
+  color: #7a5a2c;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
 /* 线索进度 */
 .clue-progress {
   margin-top: 8rpx;
@@ -200,7 +227,7 @@
 }
 
 /* 语音按钮 - 暖棕描边样式 */
-.elder-voice-btn {
+.voice-btn {
   width: 100%;
   height: 96rpx;
   border-radius: 16rpx;
@@ -216,22 +243,22 @@
   transition: all 0.3s ease;
 }
 
-.elder-voice-btn::after {
+.voice-btn::after {
   border: none;
 }
 
-.elder-voice-btn:active {
+.voice-btn:active {
   background: #f5efe4;
   transform: scale(0.98);
 }
 
-.elder-voice-btn.is-recording {
+.voice-btn.is-recording {
   background: #fdf2f2;
   border-color: #c45a5a;
   color: #c45a5a;
 }
 
-.elder-voice-icon {
+.voice-icon {
   font-size: 36rpx;
   line-height: 1;
 }
@@ -338,11 +365,6 @@
   overflow: hidden;
 }
 
-.memory-card.child {
-  margin-left: 48rpx;
-  border-left: 2rpx dashed #d6cab8;
-}
-
 /* 左侧色条 */
 .card-bar {
   width: 8rpx;
@@ -352,6 +374,46 @@
 .card-question .card-bar { background: #4a7a9e; }
 .card-memory  .card-bar { background: #b08a5c; }
 .card-answer  .card-bar { background: #6b8a4a; }
+
+.memory-card.member-grandma {
+  background: #fff8ec;
+  border-color: #ead5ad;
+}
+.memory-card.member-grandma .card-bar { background: #c18a2f; }
+.memory-card.member-grandma .card-author { color: #8a5a14; }
+
+.memory-card.member-grandpa {
+  background: #f3faf5;
+  border-color: #c8dfce;
+}
+.memory-card.member-grandpa .card-bar { background: #4f8f63; }
+.memory-card.member-grandpa .card-author { color: #2e6b43; }
+
+.memory-card.member-dad {
+  background: #f2f7fc;
+  border-color: #c4d8ea;
+}
+.memory-card.member-dad .card-bar { background: #437ca8; }
+.memory-card.member-dad .card-author { color: #275f8a; }
+
+.memory-card.member-mom {
+  background: #fff4f3;
+  border-color: #ebc7c2;
+}
+.memory-card.member-mom .card-bar { background: #c2645d; }
+.memory-card.member-mom .card-author { color: #9a433e; }
+
+.memory-card.member-grandson {
+  background: #f7f5ff;
+  border-color: #d7cdea;
+}
+.memory-card.member-grandson .card-bar { background: #7463a8; }
+.memory-card.member-grandson .card-author { color: #58478d; }
+
+.memory-card.member-family {
+  background: #fbf8f1;
+}
+.memory-card.member-family .card-bar { background: #8a8172; }
 
 /* 卡片内容区 */
 .card-body {
@@ -368,12 +430,17 @@
 }
 
 .card-author {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
   font-size: 26rpx;
   font-weight: 700;
   color: #3d3730;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
-.elder-badge {
+.member-badge {
   font-size: 22rpx;
   font-weight: 600;
   color: #6b8a4a;
@@ -396,6 +463,80 @@
   margin-top: 12rpx;
   font-size: 22rpx;
   color: #b3a68f;
+}
+
+.reply-list {
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid #eadfce;
+}
+
+.reply-item {
+  padding: 18rpx 0 18rpx 22rpx;
+  border-left: 4rpx solid #d8c7ae;
+}
+
+.reply-item + .reply-item {
+  border-top: 1rpx dashed #eadfce;
+}
+
+.reply-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.reply-author {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #5b4636;
+}
+
+.reply-item.member-grandma {
+  border-left-color: #c18a2f;
+  background: rgba(193, 138, 47, 0.05);
+}
+.reply-item.member-grandma .reply-author { color: #8a5a14; }
+
+.reply-item.member-grandpa {
+  border-left-color: #4f8f63;
+  background: rgba(79, 143, 99, 0.06);
+}
+.reply-item.member-grandpa .reply-author { color: #2e6b43; }
+
+.reply-item.member-dad {
+  border-left-color: #437ca8;
+  background: rgba(67, 124, 168, 0.06);
+}
+.reply-item.member-dad .reply-author { color: #275f8a; }
+
+.reply-item.member-mom {
+  border-left-color: #c2645d;
+  background: rgba(194, 100, 93, 0.06);
+}
+.reply-item.member-mom .reply-author { color: #9a433e; }
+
+.reply-item.member-grandson {
+  border-left-color: #7463a8;
+  background: rgba(116, 99, 168, 0.06);
+}
+.reply-item.member-grandson .reply-author { color: #58478d; }
+
+.reply-item.member-family {
+  border-left-color: #8a8172;
+}
+
+.reply-content {
+  font-size: 28rpx;
+  line-height: 1.65;
+  color: #322c25;
 }
 
 /* === 恭喜 Banner === */
@@ -465,6 +606,14 @@
   text-align: center;
 }
 
+.card-admin-line {
+  margin-top: 10rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #7a5a2c;
+  font-weight: 700;
+}
+
 .label {
   margin-bottom: 16rpx;
   color: #665f54;
@@ -527,4 +676,201 @@
   margin-bottom: 8rpx;
   font-size: 28rpx;
   font-weight: 700;
+}
+
+/* ===== 新增：提示词、引用、贡献度评定 ===== */
+
+.repair-hint {
+  margin: 16rpx 0 12rpx;
+  padding: 16rpx 20rpx;
+  border-left: 4rpx solid #c9b78b;
+  background: #fbf7ec;
+  font-size: 26rpx;
+  color: #7a6a4a;
+  line-height: 1.6;
+  border-radius: 0 12rpx 12rpx 0;
+}
+
+.quote-preview {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 0 12rpx;
+  padding: 16rpx 20rpx;
+  background: #efe9d8;
+  border-left: 4rpx solid #b39a5c;
+  border-radius: 0 12rpx 12rpx 0;
+}
+.quote-preview-body {
+  flex: 1;
+  font-size: 26rpx;
+  color: #6b5b3a;
+  line-height: 1.5;
+}
+.quote-preview-label {
+  margin-right: 8rpx;
+  padding: 2rpx 10rpx;
+  background: #b39a5c;
+  color: #fff;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+}
+.quote-preview-author {
+  font-weight: 700;
+  margin-right: 4rpx;
+}
+.quote-preview-text {
+  color: #6b5b3a;
+}
+.quote-preview-clear {
+  margin-left: 12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  color: #9c8a5c;
+  font-size: 36rpx;
+}
+
+.quote-box {
+  display: block;
+  margin-bottom: 12rpx;
+  padding: 12rpx 16rpx;
+  background: #f3eee0;
+  border-left: 4rpx solid #c9b78b;
+  border-radius: 0 8rpx 8rpx 0;
+  font-size: 24rpx;
+  color: #7a6a4a;
+  line-height: 1.5;
+}
+.quote-box-author {
+  font-weight: 700;
+  margin-right: 4rpx;
+}
+.quote-box-text {
+  color: #7a6a4a;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx dashed #e0d6bc;
+  flex-wrap: wrap;
+}
+.card-action {
+  font-size: 24rpx;
+  color: #8a7544;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f6f0dc;
+}
+.quote-btn {
+  cursor: pointer;
+}
+.repair-picker {
+  background: #ece1bf;
+  color: #6b5b2b;
+  font-weight: 600;
+}
+
+/* ===== 引用补充浮层 ===== */
+
+.quote-panel-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(40, 30, 15, 0.45);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.quote-panel {
+  width: 100%;
+  background: #fbf6e7;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 28rpx 32rpx 40rpx;
+  box-shadow: 0 -8rpx 24rpx rgba(80, 60, 20, 0.18);
+  animation: quote-slide-up 220ms ease-out;
+}
+
+@keyframes quote-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.quote-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.quote-panel-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #5b4a20;
+}
+.quote-panel-close {
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 52rpx;
+  text-align: center;
+  font-size: 40rpx;
+  color: #9c8a5c;
+}
+
+.quote-panel-quote {
+  padding: 16rpx 20rpx;
+  background: #efe9d8;
+  border-left: 4rpx solid #b39a5c;
+  border-radius: 0 12rpx 12rpx 0;
+  font-size: 26rpx;
+  color: #6b5b3a;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+}
+
+.quote-panel-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  background: #fff;
+  border: 1rpx solid #d9cda4;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  color: #3a2d10;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.quote-panel-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+.quote-panel-cancel,
+.quote-panel-submit {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 30rpx;
+  border-radius: 14rpx;
+  border: none;
+}
+.quote-panel-cancel {
+  background: #ece1bf;
+  color: #6b5b2b;
+}
+.quote-panel-submit {
+  background: #8a7544;
+  color: #fff;
+  font-weight: 700;
+}
+.quote-panel-submit::after,
+.quote-panel-cancel::after {
+  border: none;
 }

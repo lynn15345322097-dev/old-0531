@@ -1,4 +1,5 @@
 const demoStore = require('../../utils/demoStore')
+const { decorateMember } = require('../../utils/memberDisplay')
 const app = getApp()
 
 Page({
@@ -6,7 +7,8 @@ Page({
     family: null,
     user: null,
     inviteCode: '',
-    demoMode: demoStore.DEMO_MODE
+    demoMode: demoStore.DEMO_MODE,
+    demoMembers: []
   },
 
   onShow() {
@@ -18,8 +20,9 @@ Page({
       app.globalData.needOnboarding = false
       this.setData({
         family,
-        user,
-        inviteCode: family.inviteCode || ''
+        user: decorateMember(user),
+        inviteCode: family.inviteCode || '',
+        demoMembers: demoStore.getDemoMembers().map(decorateMember)
       })
       return
     }
@@ -33,7 +36,7 @@ Page({
     } else {
       this.setData({
         family,
-        user,
+        user: decorateMember(user),
         inviteCode: family.inviteCode || ''
       })
     }
@@ -54,7 +57,7 @@ Page({
           app.globalData.family = family
           this.setData({
             family,
-            user,
+            user: decorateMember(user),
             inviteCode: family.inviteCode || ''
           })
         }
@@ -72,6 +75,21 @@ Page({
     })
   },
 
+  switchDemoUser(event) {
+    if (!demoStore.DEMO_MODE) return
+    const openid = event.currentTarget.dataset.openid
+    const user = demoStore.setDemoUser(openid)
+    if (!user) {
+      wx.showToast({ title: '切换失败', icon: 'none' })
+      return
+    }
+
+    app.globalData.user = user
+    const displayUser = decorateMember(user)
+    this.setData({ user: displayUser })
+    wx.showToast({ title: `已切换为${displayUser.displayName}`, icon: 'success' })
+  },
+
   resetDemoData() {
     if (!demoStore.DEMO_MODE) return
     demoStore.resetDemo()
@@ -81,8 +99,9 @@ Page({
     app.globalData.user = user
     this.setData({
       family,
-      user,
-      inviteCode: family.inviteCode || ''
+      user: decorateMember(user),
+      inviteCode: family.inviteCode || '',
+      demoMembers: demoStore.getDemoMembers().map(decorateMember)
     })
     wx.showToast({ title: '初始展品已恢复', icon: 'success' })
   }

@@ -17,7 +17,12 @@ Page({
 
   loadObjects() {
     if (demoStore.DEMO_MODE) {
-      this.setData({ objects: demoStore.listObjects(this.data.status) })
+      const objects = demoStore.listObjects(this.data.status)
+      const enriched = objects.map((obj) => ({
+        ...obj,
+        participantCount: demoStore.getParticipantCount(obj._id || obj.objectId)
+      }))
+      this.setData({ objects: enriched })
       return
     }
 
@@ -25,7 +30,11 @@ Page({
       name: 'getMuseumObjects',
       data: { status: this.data.status },
       success: (res) => {
-        this.setData({ objects: res.result.objects || [] })
+        const objects = (res.result.objects || []).map((obj) => ({
+          ...obj,
+          participantCount: (res.result.participantCounts || {})[obj._id || obj.objectId] || 1
+        }))
+        this.setData({ objects })
       },
       fail: (err) => {
         console.error('[cloud:getMuseumObjects] failed', err)

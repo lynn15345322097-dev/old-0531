@@ -19,7 +19,8 @@ exports.main = async (event) => {
     throw new Error('请先创建或加入一个家庭')
   }
 
-  const familyId = userQuery.data[0].familyId
+  const user = userQuery.data[0]
+  const familyId = user.familyId
 
   const countRes = await db.collection('objects').where({ familyId }).count()
   const objectNo = `No.${String(countRes.total + 1).padStart(3, '0')}`
@@ -31,7 +32,9 @@ exports.main = async (event) => {
     objectId: _id,
     objectNo,
     familyId,
-    uploaderId: openid,
+    uploaderOpenid: openid,
+    uploaderName: user.name || '',
+    uploaderRelation: user.relation || '',
     title: '未知藏品',
     displayTitle: '未知藏品',
     imageOriginal: event.imageOriginal,

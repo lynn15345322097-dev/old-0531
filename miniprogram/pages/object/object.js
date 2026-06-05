@@ -1,5 +1,6 @@
 const demoStore = require('../../utils/demoStore')
-const { CLUE_LABELS, calcRepairProgressFromClues } = require('../../utils/repairWeights')
+const { CLUE_LABELS } = require('../../utils/repairWeights')
+const { displayMember } = require('../../utils/memberDisplay')
 const recorder = wx.getRecorderManager()
 
 function lerp(a, b, t) {
@@ -39,25 +40,108 @@ function visualState(progress) {
   return getFilter(progress)
 }
 
-function buildThreadedItems(memoryItems) {
-  const items = memoryItems || []
-  const idMap = {}
-  const roots = []
+const REPAIR_OPTIONS = [0, 10, 20, 30, 50]
 
-  items.forEach((item) => {
-    idMap[item.memoryId || item._id] = { ...item, children: [] }
-  })
+function getRelationClass(relation) {
+  const map = {
+    '奶奶': 'grandma',
+    '爷爷': 'grandpa',
+    '爸爸': 'dad',
+    '妈妈': 'mom',
+    '孙子': 'grandson',
+    '孙女': 'grandson'
+  }
+  return map[relation] || 'family'
+}
 
-  items.forEach((item) => {
-    const node = idMap[item.memoryId || item._id]
-    if (item.parentId && idMap[item.parentId]) {
-      idMap[item.parentId].children.push(node)
-    } else {
-      roots.push(node)
+function decorateMemoryItems(memoryItems, object) {
+  const uploaderOpenid = object && object.uploaderOpenid
+  const decorated = (memoryItems || []).map((item) => {
+    const percent = typeof item.repairPercent === 'number' ? item.repairPercent : null
+    const repairOptionIndex = percent === null ? 0 : Math.max(0, REPAIR_OPTIONS.indexOf(percent))
+    return {
+      ...item,
+      repairPercent: percent,
+      repairPercentText: percent === null ? '未评定' : `+${percent}%`,
+      repairOptionIndex,
+      displayName: displayMember(item.authorRelation, item.authorName),
+      relationClass: getRelationClass(item.authorRelation),
+      isObjectAdmin: !!uploaderOpenid && item.authorOpenid === uploaderOpenid,
+      quotedDisplayName: item.quotedAuthorName || '家人',
+      replies: []
     }
   })
+  const byId = {}
+  decorated.forEach((item) => {
+    byId[item.memoryId || item._id] = item
+  })
 
-  return roots
+  function rootIdFor(item) {
+    const ownId = item.memoryId || item._id
+    let current = item
+    const seen = {}
+    while (current.parentId && byId[current.parentId] && !seen[current.parentId]) {
+      seen[current.parentId] = true
+      current = byId[current.parentId]
+    }
+    return current.memoryId || current._id || ownId
+  }
+
+  decorated.forEach((item) => {
+    item.rootMemoryId = rootIdFor(item)
+  })
+
+  return decorated
+}
+
+function buildMemoryGroups(memoryItems) {
+  const groups = []
+  const roots = {}
+  ;(memoryItems || []).forEach((item) => {
+    const ownId = item.memoryId || item._id
+    if (!item.parentId || item.rootMemoryId === ownId) {
+      roots[ownId] = { ...item, replies: [] }
+      groups.push(roots[ownId])
+    }
+  })
+  ;(memoryItems || []).forEach((item) => {
+    const ownId = item.memoryId || item._id
+    if (item.parentId && item.rootMemoryId !== ownId) {
+      const root = roots[item.rootMemoryId]
+      if (root) root.replies.push({ ...item, replies: [] })
+      else groups.push({ ...item, replies: [] })
+    }
+  })
+  return groups
+}
+
+function decorateCard(card) {
+  if (!card) return null
+  return {
+    ...card,
+    perspectives: (card.perspectives || []).map((item) => ({
+      ...item,
+      displayName: displayMember(item.relation, item.person)
+    }))
+  }
+}
+
+function decorateObject(object) {
+  if (!object) return object
+  const image = object.imageProcessed || object.imageOriginal || ''
+  return {
+    ...object,
+    displayImage: image,
+    uploaderDisplayName: displayMember(object.uploaderRelation, object.uploaderName)
+  }
+}
+
+function buildQuotePayload(quoting) {
+  return {
+    parentId: quoting ? quoting.parentId : null,
+    quotedAuthorName: quoting ? quoting.authorName : '',
+    quotedExcerpt: quoting ? quoting.excerpt : ''
+  }
 }
 
 Page({
@@ -66,7 +150,7 @@ Page({
     object: null,
     card: null,
     memoryItems: [],
-    threadedItems: [],
+    memoryGroups: [],
     contentText: '',
     filterStyle: 'grayscale(100%) blur(18px) contrast(0.6) brightness(0.8) saturate(0)',
     recording: false,
@@ -79,10 +163,14 @@ Page({
     clueTarget: 6,
     newClues: [],
     generating: false,
+    isUploader: false,
+    quoting: null,
+    quotingPanelOpen: false,
+    repairOptions: REPAIR_OPTIONS,
+    repairOptionLabels: REPAIR_OPTIONS.map((p) => p === 0 ? '不计入修复' : `+${p}%`),
     kindText: {
-      question: '家人问',
-      memory: '补充',
-      answer: '我回答'
+      question: '提问',
+      memory: '补充'
     },
     CLUE_LABELS
   },
@@ -156,98 +244,177 @@ Page({
       const memoryItems = demoStore.getMemoryItems(this.data.objectId)
 
       if (!object) {
-        wx.showToast({ title: '找不到演示藏品', icon: 'none' })
+        wx.showToast({ title: '找不到预览藏品', icon: 'none' })
         return
       }
 
       const clues = object.memoryClues || { targetCount: 6, discoveredTypes: [], labels: {} }
-      const progress = object.memoryClues
-        ? calcRepairProgressFromClues(object.memoryClues)
-        : (object.repairProgress || 0)
+      const progress = object.repairProgress || 0
       const cCount = (clues.discoveredTypes || []).length
       const cTarget = clues.targetCount || 6
       const filter = visualState(progress)
+      const displayObject = decorateObject(object)
+      const decoratedMemoryItems = decorateMemoryItems(memoryItems, displayObject)
       this.setData({
-        object,
-        card: object.finalCard || null,
-        memoryItems,
-        threadedItems: buildThreadedItems(memoryItems),
+        object: displayObject,
+        card: decorateCard(object.finalCard),
+        memoryItems: decoratedMemoryItems,
+        memoryGroups: buildMemoryGroups(decoratedMemoryItems),
         memoryClues: clues,
         clueCount: cCount,
         clueTarget: cTarget,
-        filterStyle: filter.filter
+        filterStyle: filter.filter,
+        isUploader: demoStore.isUploader(this.data.objectId)
       })
+      this.resolveObjectImage(displayObject)
       return
     }
 
-    const db = wx.cloud.database()
-    db.collection('objects').doc(this.data.objectId).get({
-      success: (objectRes) => {
-        const object = objectRes.data
+    wx.cloud.callFunction({
+      name: 'getObjectDetail',
+      data: { objectId: this.data.objectId },
+      success: (res) => {
+        const result = res.result || {}
+        const object = result.object
+        const memoryItems = result.memoryItems || []
         const clues = object.memoryClues || { targetCount: 6, discoveredTypes: [], labels: {} }
-        const progress = object.memoryClues
-          ? calcRepairProgressFromClues(object.memoryClues)
-          : (object.repairProgress || 0)
+        const progress = object.repairProgress || 0
         const cCount = (clues.discoveredTypes || []).length
         const cTarget = clues.targetCount || 6
         const filter = visualState(progress)
+        const displayObject = decorateObject(object)
+        const decoratedMemoryItems = decorateMemoryItems(memoryItems, displayObject)
         this.setData({
-          object,
-          card: object.finalCard || null,
+          object: displayObject,
+          card: decorateCard(object.finalCard),
+          memoryItems: decoratedMemoryItems,
+          memoryGroups: buildMemoryGroups(decoratedMemoryItems),
           memoryClues: clues,
           clueCount: cCount,
           clueTarget: cTarget,
-          filterStyle: filter.filter
+          filterStyle: filter.filter,
+          isUploader: !!result.isUploader
         })
+        this.resolveObjectImage(displayObject)
       },
       fail: (err) => {
-        console.error('[db:objects:get] failed', err)
+        console.error('[cloud:getObjectDetail] failed', err)
         wx.showToast({ title: '加载藏品失败', icon: 'none' })
       }
     })
-
-    db.collection('memoryItems')
-      .where({ objectId: this.data.objectId })
-      .orderBy('createdAt', 'asc')
-      .get({
-        success: (res) => {
-          const items = res.data || []
-          this.setData({
-            memoryItems: items,
-            threadedItems: buildThreadedItems(items)
-          })
-        },
-        fail: (err) => {
-          console.error('[db:memoryItems:list] failed', err)
-        }
-      })
   },
 
   onInput(event) {
     this.setData({ contentText: event.detail.value })
   },
 
+  resolveObjectImage(object) {
+    const fileID = object && (object.imageProcessed || object.imageOriginal)
+    if (!fileID || demoStore.DEMO_MODE || !wx.cloud || !/^cloud:\/\//.test(fileID)) return
+
+    wx.cloud.getTempFileURL({
+      fileList: [fileID],
+      success: (res) => {
+        const file = res.fileList && res.fileList[0]
+        if (file && file.tempFileURL) {
+          this.setData({ 'object.displayImage': file.tempFileURL })
+        }
+      },
+      fail: (err) => {
+        console.error('[cloud:getTempFileURL:object-image] failed', err)
+      }
+    })
+  },
+
   applyRepairUpdate(result, extra) {
-    const { repairDelta, repairProgress, repairReason, newClues, clueCount, clueTarget, memoryClues } = result
-    const progress = repairProgress || 0
+    // 只刷新线索/新发现的提示，不再回写 repairProgress（由发起者评定决定）。
+    const { repairReason, newClues, clueCount, clueTarget, memoryClues } = result
     const cCount = clueCount || 0
     const cTarget = clueTarget || 6
-    const filter = visualState(progress)
     const updates = {
-      filterStyle: filter.filter,
       newClues: newClues || [],
       clueCount: cCount,
       clueTarget: cTarget
     }
     if (memoryClues) updates.memoryClues = memoryClues
-    if (this.data.object) {
-      updates['object.repairProgress'] = progress
-      updates['object.status'] = progress >= 100 ? 'completed' : this.data.object.status
-      if (memoryClues) updates['object.memoryClues'] = memoryClues
+    if (this.data.object && memoryClues) {
+      updates['object.memoryClues'] = memoryClues
     }
     if (extra) Object.assign(updates, extra)
     this.setData(updates)
-    wx.showToast({ title: repairReason || `记忆修复 +${repairDelta}%`, icon: 'none', duration: 2500 })
+    wx.showToast({ title: repairReason || '已保存', icon: 'none', duration: 2500 })
+  },
+
+  onQuote(event) {
+    const memoryId = event.currentTarget.dataset.id
+    const memory = this.data.memoryItems.find((item) => (item.memoryId || item._id) === memoryId)
+    if (!memory) return
+    const excerpt = (memory.contentText || '').slice(0, 30)
+    this.setData({
+      quoting: {
+        parentId: memory.rootMemoryId || memory.memoryId || memory._id,
+        authorName: memory.displayName || displayMember(memory.authorRelation, memory.authorName),
+        excerpt
+      },
+      quotingPanelOpen: true,
+      contentText: ''
+    })
+  },
+
+  clearQuote() {
+    this.setData({ quoting: null, quotingPanelOpen: false })
+  },
+
+  onQuoteInput(event) {
+    this.setData({ contentText: event.detail.value })
+  },
+
+  submitFromPanel() {
+    this.submitByKind({ currentTarget: { dataset: { kind: 'memory' } } })
+  },
+
+  noop() {},
+
+  onPickRepair(event) {
+    if (!this.data.isUploader) return
+    const memoryId = event.currentTarget.dataset.id
+    const index = Number(event.detail.value)
+    const percent = REPAIR_OPTIONS[index]
+    if (typeof percent !== 'number') return
+
+    if (demoStore.DEMO_MODE) {
+      const result = demoStore.setMemoryRepair(memoryId, percent)
+      if (!result) {
+        wx.showToast({ title: '评定失败', icon: 'none' })
+        return
+      }
+      this.loadData()
+      wx.showToast({
+        title: result.status === 'completed' ? '修复已完成' : `本条 +${percent}%`,
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.showLoading({ title: '保存中' })
+    wx.cloud.callFunction({
+      name: 'setMemoryRepair',
+      data: { memoryId, repairPercent: percent },
+      success: (res) => {
+        wx.hideLoading()
+        const r = res.result || {}
+        this.loadData()
+        wx.showToast({
+          title: r.status === 'completed' ? '修复已完成' : `本条 +${percent}%`,
+          icon: 'none'
+        })
+      },
+      fail: (err) => {
+        wx.hideLoading()
+        console.error('[cloud:setMemoryRepair] failed', err)
+        wx.showToast({ title: '评定失败', icon: 'none' })
+      }
+    })
   },
 
   submitByKind(event) {
@@ -259,17 +426,23 @@ Page({
       return
     }
 
+    const quoting = this.data.quoting
+    const payload = {
+      kind,
+      source: 'text',
+      contentText,
+      ...buildQuotePayload(quoting)
+    }
+
     if (demoStore.DEMO_MODE) {
-      const result = demoStore.addMemoryItem(this.data.objectId, {
-        kind,
-        source: 'text',
-        contentText
-      })
-      const merged = [...this.data.memoryItems, result.memoryItem]
+      const result = demoStore.addMemoryItem(this.data.objectId, payload)
+      const merged = decorateMemoryItems([...this.data.memoryItems, result.memoryItem], this.data.object)
       this.applyRepairUpdate(result, {
         contentText: '',
+        quoting: null,
+        quotingPanelOpen: false,
         memoryItems: merged,
-        threadedItems: buildThreadedItems(merged)
+        memoryGroups: buildMemoryGroups(merged)
       })
       return
     }
@@ -278,12 +451,10 @@ Page({
       name: 'addContribution',
       data: {
         objectId: this.data.objectId,
-        kind,
-        source: 'text',
-        contentText
+        ...payload
       },
       success: (res) => {
-        this.applyRepairUpdate(res.result, { contentText: '' })
+        this.applyRepairUpdate(res.result, { contentText: '', quoting: null, quotingPanelOpen: false })
         this.loadData()
       },
       fail: (err) => {
@@ -340,20 +511,22 @@ Page({
     try {
       fs.saveFileSync(tempFilePath, savedFilePath)
       const result = demoStore.addMemoryItem(this.data.objectId, {
-        kind: 'answer',
+        kind: 'memory',
         source: 'audio',
-        contentText: '我用语音讲了一段这件老东西的故事',
+        contentText: '留下了一段语音记忆',
         audioUrl: savedFilePath,
-        audioDuration: duration
+        audioDuration: duration,
+        ...buildQuotePayload(this.data.quoting)
       })
       if (!result) {
         wx.showToast({ title: '语音保存失败', icon: 'none' })
         return
       }
-      const merged = [...this.data.memoryItems, result.memoryItem]
+      const merged = decorateMemoryItems([...this.data.memoryItems, result.memoryItem], this.data.object)
       this.applyRepairUpdate(result, {
         memoryItems: merged,
-        threadedItems: buildThreadedItems(merged)
+        memoryGroups: buildMemoryGroups(merged),
+        quoting: null
       })
     } catch (e) {
       console.error('[demo:saveFile] failed', e)
@@ -373,14 +546,15 @@ Page({
           name: 'addContribution',
           data: {
             objectId: this.data.objectId,
-            kind: 'answer',
+            kind: 'memory',
             source: 'audio',
-            contentText: '我留下了一段语音',
+            contentText: '留下了一段语音记忆',
             audioUrl: uploadRes.fileID,
-            audioDuration: duration
+            audioDuration: duration,
+            ...buildQuotePayload(this.data.quoting)
           },
           success: (res) => {
-            this.applyRepairUpdate(res.result)
+            this.applyRepairUpdate(res.result, { quoting: null })
             this.loadData()
           },
           fail: (err) => {

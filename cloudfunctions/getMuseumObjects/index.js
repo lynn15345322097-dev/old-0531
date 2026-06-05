@@ -30,7 +30,33 @@ exports.main = async (event) => {
     .orderBy('createdAt', 'desc')
     .get()
 
+  // 计算每件藏品的参与人数
+  const participantCounts = {}
+  if (res.data.length) {
+    const objectIds = res.data.map((obj) => obj._id || obj.objectId)
+    const counts = {}
+    for (const object of res.data) {
+      const objectId = object._id || object.objectId
+      counts[objectId] = new Set()
+      if (object.uploaderOpenid) {
+        counts[objectId].add(object.uploaderOpenid)
+      }
+    }
+    const memoryRes = await db.collection('memoryItems')
+      .where({ objectId: db.command.in(objectIds), familyId })
+      .field({ objectId: true, authorOpenid: true })
+      .get()
+    for (const item of memoryRes.data) {
+      if (!counts[item.objectId]) counts[item.objectId] = new Set()
+      counts[item.objectId].add(item.authorOpenid)
+    }
+    for (const [objectId, openids] of Object.entries(counts)) {
+      participantCounts[objectId] = openids.size
+    }
+  }
+
   return {
-    objects: res.data
+    objects: res.data,
+    participantCounts
   }
 }

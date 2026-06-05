@@ -1,9 +1,9 @@
 <view class="page">
-  <view class="photo-box" bindtap="chooseImage">
+  <view class="photo-box {{tempImage ? 'has-image' : ''}}" bindtap="chooseImage">
     <image wx:if="{{tempImage}}" class="preview" src="{{tempImage}}" mode="aspectFill" />
     <view wx:else class="photo-placeholder">
       <view class="placeholder-icon">📷</view>
-      <view class="placeholder-text">拍照 / 选择我的老物件</view>
+      <view class="placeholder-text">拍照 / 选择家里的物件</view>
     </view>
   </view>
 
@@ -13,6 +13,6 @@
     disabled="{{!tempImage || uploading}}"
     bindtap="submit"
   >
-    保存我的老东西
+    保存这件东西
   </button>
 </view>

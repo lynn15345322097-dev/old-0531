@@ -7,9 +7,10 @@ export type ItemState = 'restoring' | 'pending_card' | 'exhibited';
 
 export interface ChatRecord {
   id: string;
-  type: 'question' | 'memory' | 'senior_voice';
+  type: 'question' | 'memory' | 'voice';
   author: string;
-  role: 'helper' | 'senior';
+  role: 'member';
+  authorRelation?: string;
   content: string;
   timestamp: string;
   durationSec?: number; // for voice (e.g. 15)
@@ -19,7 +20,7 @@ export interface ChatRecord {
 export interface FamilyInfo {
   familyName: string;
   myAlias: string;
-  myRole: '老东西' | '小东西'; // 老人 / 家人
+  myRole: '家庭成员';
   familyRelation: string; // 爷爷、奶奶、爸爸、妈妈、孙女、孙子、其他
   invitationCode: string;
 }
