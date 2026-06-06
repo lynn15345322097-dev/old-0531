@@ -15,7 +15,12 @@
       data-id="{{item._id}}"
       bindtap="goObject"
     >
-      <image class="cover" src="{{item.imageOriginal}}" mode="aspectFit" />
+      <view class="cover-wrap {{item.isUnrepaired ? 'unrepaired' : ''}}">
+        <image class="cover" src="{{item.coverImage}}" mode="aspectFit" style="filter: {{item.coverFilterStyle}};" />
+        <view wx:if="{{item.isUnrepaired}}" class="cover-mask">
+          <view class="cover-mask-text">{{item.repairProgress || 0}}%</view>
+        </view>
+      </view>
       <view class="card-main">
         <view class="card-title">{{item.displayTitle || item.title}}</view>
         <view class="card-meta">
