@@ -51,7 +51,11 @@
       </view>
     </view>
 
-    <button wx:if="{{demoMode}}" class="reset-btn" bindtap="resetDemoData">恢复初始展品</button>
+    <view wx:if="{{demoMode}}" class="reset-area">
+      <view class="reset-title">画面不一致时</view>
+      <view class="reset-desc">恢复到仓库内置的同一份初始演示数据，方便和其他电脑对齐预览。</view>
+      <button class="reset-btn" bindtap="resetDemoData">恢复到统一初始展品</button>
+    </view>
   </block>
 
   <!-- 未绑定家庭 -->
